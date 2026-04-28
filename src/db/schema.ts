@@ -93,6 +93,7 @@ export const blogPosts = pgTable(
     author: text("author").default("Arnaud Canadas"),
     tags: jsonb("tags").$type<string[]>().default([]),
     category: varchar("category", { length: 100 }),
+    faq: jsonb("faq").$type<Array<{ question: string; answer: string }>>(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => [uniqueIndex("blog_posts_slug_idx").on(table.slug)]
