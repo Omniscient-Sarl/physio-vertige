@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { notFound } from "next/navigation";
 import { Phone, ArrowRight } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
@@ -11,9 +12,14 @@ import {
   getPublishedTestimonials,
 } from "@/db/queries";
 import { FAQAccordion } from "@/components/public/faq-accordion";
-import { TestimonialCarousel } from "@/components/public/testimonial-carousel";
 import { CTABlock } from "@/components/public/cta-block";
 import { BookingStickyMobile } from "@/components/public/booking-sticky-mobile";
+
+const TestimonialCarousel = dynamic(() =>
+  import("@/components/public/testimonial-carousel").then(
+    (mod) => mod.TestimonialCarousel
+  )
+);
 
 export const revalidate = 60;
 

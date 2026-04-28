@@ -1,4 +1,5 @@
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { Phone, ArrowRight } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -12,9 +13,14 @@ import {
 import { TrustStrip } from "@/components/public/trust-strip";
 import { ProcessTimeline } from "@/components/public/process-timeline";
 import { ConditionCard } from "@/components/public/condition-card";
-import { TestimonialCarousel } from "@/components/public/testimonial-carousel";
 import { FAQAccordion } from "@/components/public/faq-accordion";
 import { CTABlock } from "@/components/public/cta-block";
+
+const TestimonialCarousel = dynamic(() =>
+  import("@/components/public/testimonial-carousel").then(
+    (mod) => mod.TestimonialCarousel
+  )
+);
 
 export const revalidate = 60;
 
