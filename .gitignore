@@ -48,3 +48,6 @@ scraped/*-snapshot.md
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Scraped data (run locally)
+scraped/google-reviews.json
