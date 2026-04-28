@@ -5,10 +5,14 @@ import * as schema from "../src/db/schema";
 import matter from "gray-matter";
 import * as fs from "fs";
 import * as path from "path";
+import { normalizeGrokMarkdown } from "./lib/normalize-grok-markdown";
 
-const filePath = process.argv[2];
+const args = process.argv.slice(2);
+const dryRun = args.includes("--dry-run");
+const filePath = args.find((a) => !a.startsWith("--"));
+
 if (!filePath) {
-  console.error("Usage: npm run db:import-post -- <path-to-markdown-file>");
+  console.error("Usage: npm run db:import-post -- <path-to-markdown-file> [--dry-run]");
   process.exit(1);
 }
 
@@ -18,11 +22,11 @@ if (!fs.existsSync(absolutePath)) {
   process.exit(1);
 }
 
-const sql = neon(process.env.DATABASE_URL!);
-const db = drizzle(sql, { schema });
-
 const raw = fs.readFileSync(absolutePath, "utf-8");
-const { data: fm, content } = matter(raw);
+const { data: fm, content: rawContent } = matter(raw);
+
+// Normalize the markdown body
+const { normalized: content, diff } = normalizeGrokMarkdown(rawContent, fm);
 
 const slug = fm.slug as string;
 const title = fm.title as string;
@@ -48,6 +52,28 @@ const firstParagraph = content
   .find((p) => p.trim() && !p.startsWith("#") && !p.startsWith("---"));
 const excerpt = firstParagraph?.trim().slice(0, 300) || null;
 
+// Print normalizer diff summary
+console.log("\n--- Normalizer Diff ---");
+console.log(`  H1 prefixed:          ${diff.h1Prefixed}`);
+console.log(`  H2 prefixed:          ${diff.h2Prefixed}`);
+console.log(`  H3 numbered:          ${diff.h3Numbered}`);
+console.log(`  H3 FAQ questions:     ${diff.h3Faq}`);
+console.log(`  Bullet lists:         ${diff.bulletLists}`);
+console.log(`  Callouts:             ${diff.callouts}`);
+console.log(`  Inline links:         ${diff.inlineLinks}`);
+console.log(`  Tables fixed:         ${diff.tablesFixed}`);
+console.log(`  False citations:      ${diff.falsecitationsStripped}`);
+
+if (dryRun) {
+  console.log("\n--- DRY RUN: Normalized output ---\n");
+  console.log(content);
+  console.log("\n--- End of dry run (no DB write) ---");
+  process.exit(0);
+}
+
+const sql = neon(process.env.DATABASE_URL as string);
+const db = drizzle(sql, { schema });
+
 async function run() {
   // Check if post already exists
   const existing = await db
@@ -69,6 +95,7 @@ async function run() {
     author,
     tags,
     category,
+    faq: faqItems.length > 0 ? faqItems : null,
     updatedAt: new Date(),
   };
 
@@ -106,7 +133,7 @@ async function run() {
   console.log(`Title:          ${title}`);
   console.log(`Word count:     ${wordCount}`);
   console.log(`Reading time:   ${readingTimeMinutes} min`);
-  console.log(`FAQ count:      ${faqItems.length} (embedded in body)`);
+  console.log(`FAQ count:      ${faqItems.length} (stored in faq column)`);
   console.log(`Cover image:    ${coverImageUrl ?? "none"}`);
   console.log(`Cover alt:      ${coverImageAlt}`);
   console.log(`Status:         ${status}`);
