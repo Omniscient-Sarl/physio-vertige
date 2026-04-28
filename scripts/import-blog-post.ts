@@ -62,6 +62,7 @@ console.log(`  Bullet lists:         ${diff.bulletLists}`);
 console.log(`  Callouts:             ${diff.callouts}`);
 console.log(`  Inline links:         ${diff.inlineLinks}`);
 console.log(`  Tables fixed:         ${diff.tablesFixed}`);
+console.log(`  Sources enriched:     ${diff.authoritativeSourcesEnriched}`);
 console.log(`  False citations:      ${diff.falsecitationsStripped}`);
 
 if (dryRun) {

@@ -7,6 +7,7 @@ export interface NormalizeDiff {
   callouts: number;
   inlineLinks: number;
   tablesFixed: number;
+  authoritativeSourcesEnriched: number;
   falsecitationsStripped: number;
 }
 
@@ -29,6 +30,11 @@ const H2_PATTERNS = [
   "Sources et références",
   "Articles liés",
   "Prenez rendez-vous",
+  "Pourquoi est-elle",
+  "Symptômes typiques",
+  "Critères diagnostiques",
+  "Causes et déclencheurs",
+  "Différences avec",
 ];
 
 function stripAccents(s: string): string {
@@ -63,6 +69,7 @@ export function normalizeGrokMarkdown(
     callouts: 0,
     inlineLinks: 0,
     tablesFixed: 0,
+    authoritativeSourcesEnriched: 0,
     falsecitationsStripped: 0,
   };
 
@@ -229,9 +236,9 @@ export function normalizeGrokMarkdown(
     }
   );
 
-  // "Que faire" section — bare lines should be bullets
+  // "Que faire" / "Que puis-je" section — bare lines should be bullets
   text = text.replace(
-    /(## Que faire.*\n\n)([\s\S]*?)(?=\n## |\n$|$)/i,
+    /(## Que (?:faire|puis-je).*\n\n)([\s\S]*?)(?=\n## |\n$|$)/i,
     (match, h2Line: string, body: string) => {
       const bodyLines = body.split("\n");
       for (let k = 0; k < bodyLines.length; k++) {
@@ -307,15 +314,30 @@ export function normalizeGrokMarkdown(
     }
   }
 
-  // === Transform 9: Strip false citations ===
-  // Only strip lines that are unverifiable references (no real URL, no markdown link)
+  // === Transform 9: Authoritative source enrichment + false citation stripping ===
+  const AUTHORITATIVE_SOURCES: Record<string, string> = {
+    "physioswiss": "https://physioswiss.ch/fr/",
+    "vestibular disorders association": "https://vestibular.org/",
+    "vestibular.org": "https://vestibular.org/",
+    "vda": "https://vestibular.org/",
+    "barany society": "https://www.thebaranysociety.org/",
+    "barany": "https://www.thebaranysociety.org/",
+    "cochrane": "https://www.cochrane.org/",
+    "concussion in sport group": "https://bjsm.bmj.com/content/57/11/695",
+    "scat5": "https://bjsm.bmj.com/content/51/11/851",
+    "scat6": "https://bjsm.bmj.com/content/57/11/622",
+  };
+
+  // Known exact source replacements (higher priority than AUTHORITATIVE_SOURCES)
+  const SOURCE_LINK_MAP: [RegExp, string][] = [
+    [/^-?\s*Vertiges\s*-?\s*HUG\s*Gen[eè]ve$/i, "- [Informations sur les vertiges aux HUG (Genève)](https://www.hug.ch/orl-chirurgie-cervico-faciale/vertiges)"],
+    [/^-?\s*Physioswiss\s*[–—-]\s*Association suisse de physiothérapie$/i, "- [Physioswiss – Association suisse de physiothérapie](https://physioswiss.ch/fr/)"],
+    [/^-?\s*Migraine vestibulaire\s*-?\s*HUG\s*Gen[eè]ve$/i, "- [Migraine vestibulaire aux HUG (Genève)](https://www.hug.ch/)"],
+  ];
+
+  // False citation patterns — always strip
   const FALSE_CITATION_PATTERNS = [
     /Recommandations de la Société Suisse de Neurologie/i,
-  ];
-  // Known source replacements: bare text → proper markdown link
-  const SOURCE_LINK_MAP: [RegExp, string][] = [
-    [/^-?\s*Vertiges\s*-?\s*HUG\s*Genève$/i, "- [Informations sur les vertiges aux HUG (Genève)](https://www.hug.ch/orl-chirurgie-cervico-faciale/vertiges)"],
-    [/^-?\s*Physioswiss\s*[–—-]\s*Association suisse de physiothérapie$/i, "- [Physioswiss – Association suisse de physiothérapie](https://physioswiss.ch/fr/)"],
   ];
 
   const sourcesLines = text.split("\n");
@@ -327,6 +349,16 @@ export function normalizeGrokMarkdown(
 
     if (inSources) {
       const trimmed = line.trim();
+      // Keep headings and blank lines
+      if (trimmed === "" || trimmed.startsWith("#")) {
+        filtered.push(line);
+        continue;
+      }
+      // Lines that already have a markdown link or bare URL — keep as-is
+      if (trimmed.includes("[") || /https?:\/\//.test(trimmed)) {
+        filtered.push(line);
+        continue;
+      }
       // Check for false citations first
       const isFalse = FALSE_CITATION_PATTERNS.some((p) => p.test(trimmed));
       if (isFalse) {
@@ -334,13 +366,49 @@ export function normalizeGrokMarkdown(
         diff.falsecitationsStripped++;
         continue;
       }
-      // Check for known source replacements
+      // Check for known exact source replacements
       const sourceMatch = SOURCE_LINK_MAP.find(([pattern]) => pattern.test(trimmed));
       if (sourceMatch) {
         filtered.push(sourceMatch[1]);
-      } else {
-        filtered.push(line);
+        diff.authoritativeSourcesEnriched++;
+        continue;
       }
+      // Check against authoritative sources map (fuzzy substring match)
+      const normalizedLine = stripAccents(trimmed.replace(/^-\s*/, "").toLowerCase());
+      let enriched = false;
+      for (const [key, url] of Object.entries(AUTHORITATIVE_SOURCES)) {
+        const normalizedKey = stripAccents(key.toLowerCase());
+        if (normalizedLine.includes(normalizedKey)) {
+          // Use the original text as the anchor
+          const anchorText = trimmed.replace(/^-\s*/, "").trim();
+          filtered.push(`- [${anchorText}](${url})`);
+          console.log(`[normalizer] Enriched source: "${trimmed}" → ${url}`);
+          diff.authoritativeSourcesEnriched++;
+          enriched = true;
+          break;
+        }
+      }
+      if (enriched) continue;
+
+      // Check for HUG/CHUV bare references without URL — use safe fallback
+      if (/hug|h[oô]pitaux universitaires de gen[eè]ve/i.test(trimmed)) {
+        const anchorText = trimmed.replace(/^-\s*/, "").trim();
+        filtered.push(`- [${anchorText}](https://www.hug.ch/)`);
+        console.log(`[normalizer] TODO: HUG fallback URL used for: "${trimmed}"`);
+        diff.authoritativeSourcesEnriched++;
+        continue;
+      }
+      if (/chuv/i.test(trimmed)) {
+        const anchorText = trimmed.replace(/^-\s*/, "").trim();
+        filtered.push(`- [${anchorText}](https://www.chuv.ch/)`);
+        console.log(`[normalizer] TODO: CHUV fallback URL used for: "${trimmed}"`);
+        diff.authoritativeSourcesEnriched++;
+        continue;
+      }
+
+      // Unrecognized bare text source — strip as false citation
+      console.log(`[normalizer] Stripped false citation: "${trimmed}"`);
+      diff.falsecitationsStripped++;
     } else {
       filtered.push(line);
     }
@@ -366,6 +434,12 @@ if (typeof process !== "undefined" && process.argv[1]?.endsWith("normalize-grok-
   const testH2 = "\n\nFAQ\n\n### Already a question?\n\nAnswer here.";
   const r3 = normalizeGrokMarkdown(testH2, { title: "Test", faq: [{ question: "Already a question?", answer: "Yes" }] });
   console.assert(r3.diff.h3Faq === 0, "Should not double-prefix FAQ H3");
+
+  // Test authoritative source enrichment
+  const testSources = "\n\n## Sources et références utiles\n\nVestibular Disorders Association – Vestibular Migraine\n";
+  const r4 = normalizeGrokMarkdown(testSources, { title: "Test" });
+  console.assert(r4.diff.authoritativeSourcesEnriched === 1, "Should enrich Vestibular Disorders Association");
+  console.assert(r4.normalized.includes("vestibular.org"), "Should contain vestibular.org URL");
 
   console.log("[normalizer] All sanity checks passed.");
 }
