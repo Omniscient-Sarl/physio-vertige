@@ -63,6 +63,16 @@ export const services = pgTable(
     imageUrl: text("image_url"),
     order: integer("order").notNull().default(0),
     published: boolean("published").notNull().default(true),
+    // Condition page fields
+    metaTitle: text("meta_title"),
+    metaDescription: text("meta_description"),
+    heroHook: text("hero_hook"),
+    symptoms: jsonb("symptoms").$type<string[]>(),
+    causes: text("causes"),
+    protocol: text("protocol"),
+    sessionDescription: text("session_description"),
+    sessionCount: text("session_count"),
+    relatedSlugs: jsonb("related_slugs").$type<string[]>(),
   },
   (table) => [uniqueIndex("services_slug_idx").on(table.slug)]
 );
@@ -82,6 +92,7 @@ export const blogPosts = pgTable(
     status: varchar("status", { length: 20 }).notNull().default("draft"),
     author: text("author").default("Arnaud Canadas"),
     tags: jsonb("tags").$type<string[]>().default([]),
+    category: varchar("category", { length: 100 }),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => [uniqueIndex("blog_posts_slug_idx").on(table.slug)]
@@ -94,6 +105,9 @@ export const testimonials = pgTable("testimonials", {
   rating: integer("rating").default(5),
   order: integer("order").notNull().default(0),
   published: boolean("published").notNull().default(true),
+  serviceId: integer("service_id").references(() => services.id, {
+    onDelete: "set null",
+  }),
 });
 
 export const faqs = pgTable("faqs", {
@@ -103,6 +117,9 @@ export const faqs = pgTable("faqs", {
   category: varchar("category", { length: 100 }),
   order: integer("order").notNull().default(0),
   published: boolean("published").notNull().default(true),
+  serviceId: integer("service_id").references(() => services.id, {
+    onDelete: "set null",
+  }),
 });
 
 export const media = pgTable("media", {

@@ -36,6 +36,11 @@ yarn-error.log*
 # scraped assets
 scraped/images/
 scraped/*.png
+scraped/*.jpeg
+scraped/*-snapshot.md
+
+# lighthouse reports
+/lighthouse/
 
 # vercel
 .vercel

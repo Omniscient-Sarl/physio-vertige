@@ -1,5 +1,5 @@
 import { db } from "./index";
-import { eq, asc } from "drizzle-orm";
+import { eq, asc, and, isNull, desc } from "drizzle-orm";
 import * as schema from "./schema";
 import { cache } from "react";
 
@@ -67,20 +67,62 @@ export const getBlogPostBySlug = cache(async (slug: string) => {
   return rows[0] ?? null;
 });
 
-export const getPublishedTestimonials = cache(async () => {
+export const getPublishedTestimonials = cache(async (serviceId?: number) => {
+  const conditions = [eq(schema.testimonials.published, true)];
+  if (serviceId !== undefined) {
+    conditions.push(eq(schema.testimonials.serviceId, serviceId));
+  }
   return db
     .select()
     .from(schema.testimonials)
-    .where(eq(schema.testimonials.published, true))
+    .where(and(...conditions))
     .orderBy(asc(schema.testimonials.order));
 });
 
-export const getPublishedFaqs = cache(async () => {
+export const getGlobalTestimonials = cache(async () => {
+  return db
+    .select()
+    .from(schema.testimonials)
+    .where(and(eq(schema.testimonials.published, true), isNull(schema.testimonials.serviceId)))
+    .orderBy(asc(schema.testimonials.order));
+});
+
+export const getPublishedFaqs = cache(async (serviceId?: number) => {
+  const conditions = [eq(schema.faqs.published, true)];
+  if (serviceId !== undefined) {
+    conditions.push(eq(schema.faqs.serviceId, serviceId));
+  }
   return db
     .select()
     .from(schema.faqs)
-    .where(eq(schema.faqs.published, true))
+    .where(and(...conditions))
     .orderBy(asc(schema.faqs.order));
+});
+
+export const getGlobalFaqs = cache(async () => {
+  return db
+    .select()
+    .from(schema.faqs)
+    .where(and(eq(schema.faqs.published, true), isNull(schema.faqs.serviceId)))
+    .orderBy(asc(schema.faqs.order));
+});
+
+export const getPublishedBlogPostsByCategory = cache(async (category: string) => {
+  return db
+    .select()
+    .from(schema.blogPosts)
+    .where(and(eq(schema.blogPosts.status, "published"), eq(schema.blogPosts.category, category)))
+    .orderBy(desc(schema.blogPosts.publishedAt));
+});
+
+export const getRelatedBlogPosts = cache(async (currentSlug: string, limit = 3) => {
+  return db
+    .select()
+    .from(schema.blogPosts)
+    .where(and(eq(schema.blogPosts.status, "published")))
+    .orderBy(desc(schema.blogPosts.publishedAt))
+    .limit(limit + 1)
+    .then(rows => rows.filter(r => r.slug !== currentSlug).slice(0, limit));
 });
 
 export const getAllMedia = cache(async () => {

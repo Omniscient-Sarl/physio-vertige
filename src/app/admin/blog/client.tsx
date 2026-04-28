@@ -22,8 +22,10 @@ const schema = z.object({
   metaDescription: z.string().optional(),
   excerpt: z.string().optional(),
   content: z.string().optional(),
-  status: z.enum(["draft", "published"]).default("draft"),
+  coverImageUrl: z.string().optional(),
+  status: z.enum(["draft", "published"]),
   author: z.string().optional(),
+  category: z.string().optional(),
   tagsStr: z.string().optional(),
 });
 
@@ -37,6 +39,8 @@ type Post = {
   content: string | null;
   status: string;
   author: string | null;
+  coverImageUrl: string | null;
+  category: string | null;
   tags: unknown;
   publishedAt: Date | null;
 };
@@ -54,8 +58,10 @@ function PostForm({ post, onDone }: { post?: Post; onDone: () => void }) {
           metaDescription: post.metaDescription ?? "",
           excerpt: post.excerpt ?? "",
           content: post.content ?? "",
+          coverImageUrl: post.coverImageUrl ?? "",
           status: post.status as "draft" | "published",
           author: post.author ?? "Arnaud Canadas",
+          category: post.category ?? "",
           tagsStr: tags.join(", "),
         }
       : { status: "draft" as const, author: "Arnaud Canadas" },
@@ -63,9 +69,10 @@ function PostForm({ post, onDone }: { post?: Post; onDone: () => void }) {
 
   async function onSubmit(data: z.infer<typeof schema>) {
     setPending(true);
+    const { tagsStr, ...rest } = data;
     const payload = {
-      ...data,
-      tags: (data.tagsStr ?? "").split(",").map((t) => t.trim()).filter(Boolean),
+      ...rest,
+      tags: (tagsStr ?? "").split(",").map((t) => t.trim()).filter(Boolean),
     };
     const result = post
       ? await updateBlogPost(post.id, payload)
@@ -94,7 +101,11 @@ function PostForm({ post, onDone }: { post?: Post; onDone: () => void }) {
       <div><Label>Meta description</Label><Input {...register("metaDescription")} className="mt-1" /></div>
       <div><Label>Extrait</Label><Textarea {...register("excerpt")} className="mt-1" rows={2} /></div>
       <div><Label>Contenu (Markdown)</Label><Textarea {...register("content")} className="mt-1 font-mono text-sm" rows={12} /></div>
-      <div><Label>Tags (séparés par des virgules)</Label><Input {...register("tagsStr")} className="mt-1" /></div>
+      <div><Label>Image de couverture (URL)</Label><Input {...register("coverImageUrl")} className="mt-1" /></div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div><Label>Catégorie</Label><Input {...register("category")} className="mt-1" placeholder="VPPB, Exercices, etc." /></div>
+        <div><Label>Tags (séparés par des virgules)</Label><Input {...register("tagsStr")} className="mt-1" /></div>
+      </div>
       <div><Label>Auteur</Label><Input {...register("author")} className="mt-1" /></div>
       <Button type="submit" disabled={pending}>
         {pending ? "Enregistrement..." : post ? "Mettre à jour" : "Créer"}

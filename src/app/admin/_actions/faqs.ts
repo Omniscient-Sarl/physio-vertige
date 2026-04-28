@@ -10,8 +10,9 @@ const faqSchema = z.object({
   question: z.string().min(1),
   answer: z.string().min(1),
   category: z.string().optional(),
-  order: z.number().int().default(0),
-  published: z.boolean().default(true),
+  order: z.number().int(),
+  published: z.boolean(),
+  serviceId: z.number().int().nullable().optional(),
 });
 
 export async function createFaq(data: z.infer<typeof faqSchema>) {

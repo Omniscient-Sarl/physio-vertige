@@ -13,8 +13,17 @@ const serviceSchema = z.object({
   longDescription: z.string().optional(),
   iconName: z.string().optional(),
   imageUrl: z.string().optional(),
-  order: z.number().int().default(0),
-  published: z.boolean().default(true),
+  order: z.number().int(),
+  published: z.boolean(),
+  metaTitle: z.string().optional(),
+  metaDescription: z.string().optional(),
+  heroHook: z.string().optional(),
+  symptoms: z.array(z.string()).optional(),
+  causes: z.string().optional(),
+  protocol: z.string().optional(),
+  sessionDescription: z.string().optional(),
+  sessionCount: z.string().optional(),
+  relatedSlugs: z.array(z.string()).optional(),
 });
 
 export async function createService(data: z.infer<typeof serviceSchema>) {
