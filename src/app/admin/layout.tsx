@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ClerkProvider } from "@clerk/nextjs";
 import { UserButton } from "@clerk/nextjs";
 import {
   LayoutDashboard,
@@ -29,6 +30,7 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
+    <ClerkProvider>
     <div className="flex min-h-screen">
       <aside className="hidden w-64 shrink-0 border-r bg-sidebar lg:block">
         <div className="flex h-16 items-center border-b px-6">
@@ -72,5 +74,6 @@ export default function AdminLayout({
         <main className="flex-1 overflow-y-auto p-6">{children}</main>
       </div>
     </div>
+    </ClerkProvider>
   );
 }
