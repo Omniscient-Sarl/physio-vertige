@@ -39,6 +39,9 @@ scraped/*.png
 scraped/*.jpeg
 scraped/*-snapshot.md
 
+# lighthouse reports
+/lighthouse/
+
 # vercel
 .vercel
 
