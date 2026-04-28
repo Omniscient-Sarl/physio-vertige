@@ -40,10 +40,15 @@ const H2_PATTERNS = [
   "Exercice",
   "Pourquoi la rééducation",
   "Pourquoi un suivi",
+  "Pourquoi le système",
   "À qui s'adressent",
   "Avant de commencer",
   "Combien de temps",
   "Quand consulter",
+  "Quels traumatismes",
+  "Diagnostic",
+  "Le rôle clé",
+  "Le retour au",
 ];
 
 function stripAccents(s: string): string {
