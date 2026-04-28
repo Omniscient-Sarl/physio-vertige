@@ -3,9 +3,11 @@ export interface NormalizeDiff {
   h2Prefixed: number;
   h3Numbered: number;
   h3Faq: number;
+  h3SubSections: number;
   bulletLists: number;
   callouts: number;
   inlineLinks: number;
+  boldLabels: number;
   tablesFixed: number;
   authoritativeSourcesEnriched: number;
   falsecitationsStripped: number;
@@ -35,6 +37,13 @@ const H2_PATTERNS = [
   "Critères diagnostiques",
   "Causes et déclencheurs",
   "Différences avec",
+  "Exercice",
+  "Pourquoi la rééducation",
+  "Pourquoi un suivi",
+  "À qui s'adressent",
+  "Avant de commencer",
+  "Combien de temps",
+  "Quand consulter",
 ];
 
 function stripAccents(s: string): string {
@@ -65,9 +74,11 @@ export function normalizeGrokMarkdown(
     h2Prefixed: 0,
     h3Numbered: 0,
     h3Faq: 0,
+    h3SubSections: 0,
     bulletLists: 0,
     callouts: 0,
     inlineLinks: 0,
+    boldLabels: 0,
     tablesFixed: 0,
     authoritativeSourcesEnriched: 0,
     falsecitationsStripped: 0,
@@ -90,15 +101,23 @@ export function normalizeGrokMarkdown(
     break; // only check first non-empty line
   }
 
+  // H3 sub-section patterns that should NOT be promoted to H2
+  const H3_SUB_PATTERNS = ["Comment faire"];
+
   // === Transform 2: H2 detection ===
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
     if (line.startsWith("## ") || line.startsWith("# ")) continue;
     if (line.length === 0 || line.length >= 100 || line.endsWith(".")) continue;
+    // Skip FAQ questions (they end with ? and will be handled by Transform 4)
+    if (line.endsWith("?") && faqItems.some((fq) => fuzzyMatch(line, fq.question))) continue;
 
     const prevBlank = i === 0 || lines[i - 1].trim() === "";
     const nextBlank = i === lines.length - 1 || lines[i + 1].trim() === "";
     if (!prevBlank || !nextBlank) continue;
+
+    // Skip known H3 sub-section headings
+    if (H3_SUB_PATTERNS.some((p) => line === p)) continue;
 
     const matchesH2 = H2_PATTERNS.some((p) =>
       stripAccents(line.toLowerCase()).startsWith(stripAccents(p.toLowerCase()))
@@ -160,6 +179,32 @@ export function normalizeGrokMarkdown(
         }
       }
       return h2Line + faqLines.join("\n");
+    }
+  );
+
+  // === Transform 4b: H3 sub-sections inside "## Exercice" blocks ===
+  // "Comment faire" lines surrounded by blank lines inside an Exercice H2 → prefix ###
+  const H3_SUBSECTION_PATTERNS = ["Comment faire"];
+  text = text.replace(
+    /^(?!#)(.+)$/gm,
+    (match, line: string) => {
+      const trimmed = line.trim();
+      if (trimmed.startsWith("### ")) return match; // idempotent
+      if (H3_SUBSECTION_PATTERNS.some((p) => trimmed === p)) {
+        diff.h3SubSections++;
+        return `### ${trimmed}`;
+      }
+      return match;
+    }
+  );
+
+  // === Transform 10: Bold inline labels (Fréquence, Précaution) ===
+  text = text.replace(
+    /^((?:Fréquence|Précaution|Durée|Intensité|Progression|Variante)\s*:\s*)(.+)$/gm,
+    (match, label: string, rest: string) => {
+      if (match.startsWith("**")) return match; // idempotent
+      diff.boldLabels++;
+      return `**${label.trim()}** ${rest}`;
     }
   );
 
@@ -227,6 +272,59 @@ export function normalizeGrokMarkdown(
       for (let k = 0; k < bodyLines.length; k++) {
         const trimmed = bodyLines[k].trim();
         if (!trimmed || trimmed.startsWith("-") || trimmed.startsWith("*") || trimmed.startsWith("#")) continue;
+        if (trimmed.length < 200) {
+          bodyLines[k] = `- ${trimmed}`;
+          diff.bulletLists++;
+        }
+      }
+      return h2Line + bodyLines.join("\n");
+    }
+  );
+
+  // "### Comment faire" sub-sections — bare lines should be bullets (exercise steps)
+  text = text.replace(
+    /(### Comment faire\n\n)([\s\S]*?)(?=\n\*\*(?:Fréquence|Précaution)|\n## |\n### |\n$|$)/gi,
+    (match, h3Line: string, body: string) => {
+      const bodyLines = body.split("\n");
+      for (let k = 0; k < bodyLines.length; k++) {
+        const trimmed = bodyLines[k].trim();
+        if (!trimmed || trimmed.startsWith("-") || trimmed.startsWith("*") || trimmed.startsWith("#") || trimmed.startsWith(">") || trimmed.startsWith("**")) continue;
+        if (trimmed.length < 200) {
+          bodyLines[k] = `- ${trimmed}`;
+          diff.bulletLists++;
+        }
+      }
+      return h3Line + bodyLines.join("\n");
+    }
+  );
+
+  // "Avant de commencer" section — bare lines should be bullets
+  text = text.replace(
+    /(## Avant de commencer.*\n\n)([\s\S]*?)(?=\n## |\n$|$)/i,
+    (match, h2Line: string, body: string) => {
+      const bodyLines = body.split("\n");
+      for (let k = 0; k < bodyLines.length; k++) {
+        const trimmed = bodyLines[k].trim();
+        if (!trimmed || trimmed.startsWith("-") || trimmed.startsWith("*") || trimmed.startsWith("#") || trimmed.startsWith(">")) continue;
+        if (trimmed.length < 200) {
+          bodyLines[k] = `- ${trimmed}`;
+          diff.bulletLists++;
+        }
+      }
+      return h2Line + bodyLines.join("\n");
+    }
+  );
+
+  // "Quand consulter" section — bare lines after "si :" should be bullets
+  text = text.replace(
+    /(## Quand consulter.*\n\n)([\s\S]*?)(?=\n## |\n$|$)/i,
+    (match, h2Line: string, body: string) => {
+      const bodyLines = body.split("\n");
+      for (let k = 0; k < bodyLines.length; k++) {
+        const trimmed = bodyLines[k].trim();
+        if (!trimmed || trimmed.startsWith("-") || trimmed.startsWith("*") || trimmed.startsWith("#")) continue;
+        // Skip paragraph text (lines ending with period or containing multiple sentences)
+        if (trimmed.endsWith(":") || trimmed.endsWith(".")) continue;
         if (trimmed.length < 200) {
           bodyLines[k] = `- ${trimmed}`;
           diff.bulletLists++;
