@@ -34,14 +34,14 @@ export function Footer() {
               Physiothérapie vestibulaire spécialisée à Morges.
               Traitement des vertiges et troubles de l&apos;équilibre.
             </p>
-            <p className="mt-4 text-xs text-teal-100/50">
+            <p className="mt-4 text-xs text-teal-100/70">
               Zone de couverture : Morges, Lausanne, Nyon, Vevey, Canton de Vaud
             </p>
           </div>
 
           {/* Conditions */}
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-teal-100/50">
+            <p className="text-xs font-semibold uppercase tracking-wider text-teal-100/70">
               Vertiges traités
             </p>
             <nav className="mt-3 flex flex-col gap-2">
@@ -59,7 +59,7 @@ export function Footer() {
 
           {/* Navigation */}
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-teal-100/50">
+            <p className="text-xs font-semibold uppercase tracking-wider text-teal-100/70">
               Navigation
             </p>
             <nav className="mt-3 flex flex-col gap-2">
@@ -77,7 +77,7 @@ export function Footer() {
 
           {/* Contact */}
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-teal-100/50">
+            <p className="text-xs font-semibold uppercase tracking-wider text-teal-100/70">
               Contact
             </p>
             <div className="mt-3 flex flex-col gap-3 text-sm text-teal-100/70">
@@ -112,7 +112,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 border-t border-teal-800 pt-6 text-center text-xs text-teal-100/40">
+        <div className="mt-12 border-t border-teal-800 pt-6 text-center text-xs text-teal-100/60">
           &copy; {new Date().getFullYear()} Physio-Vertige — Arnaud Canadas. Tous droits réservés.
         </div>
       </div>
