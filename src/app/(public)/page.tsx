@@ -10,84 +10,20 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import {
+  getSiteSettings,
+  getPublishedServices,
+  getPublishedFaqs,
+  getPublishedTestimonials,
+} from "@/db/queries";
 
-const symptoms = [
-  {
-    title: "Vertiges positionnels (VPPB)",
-    description:
-      "Courts épisodes de vertiges causés par le déplacement de cristaux dans l'oreille interne.",
-  },
-  {
-    title: "Troubles de l'équilibre",
-    description:
-      "Difficultés à marcher ou rester stable, souvent liées à un déficit vestibulaire.",
-  },
-  {
-    title: "Sensation de tête qui tourne",
-    description:
-      "Vertiges persistants ou impression de rotation de l'environnement.",
-  },
-  {
-    title: "Instabilité à la marche",
-    description:
-      "Risque accru de chutes, particulièrement chez les personnes âgées.",
-  },
-];
+export const revalidate = 60;
 
-const conditions = [
-  { title: "VPPB", description: "Cristaux déplacés dans l'oreille interne", slug: "vppb" },
-  { title: "Déficit vestibulaire périphérique", description: "Infection ou problème circulatoire", slug: "deficit-vestibulaire" },
-  { title: "Maladie de Ménière", description: "Vertiges associés à des troubles auditifs", slug: "maladie-de-meniere" },
-  { title: "Presbyvestibulie", description: "Perte progressive liée à l'âge", slug: "presbyvestibulie" },
-  { title: "PPPD", description: "Vertiges chroniques et instabilité persistante", slug: "pppd" },
-  { title: "Causes neurologiques", description: "Sclérose en plaques, AVC, etc.", slug: "causes-neurologiques" },
-];
-
-const steps = [
-  {
-    step: "1",
-    title: "Évaluation personnalisée",
-    description:
-      "Analyse de l'équilibre, des mouvements oculaires et des symptômes.",
-  },
-  {
-    step: "2",
-    title: "Manœuvres pour VPPB",
-    description:
-      "Repositionnement des cristaux ou désensibilisation par mouvements répétés.",
-  },
-  {
-    step: "3",
-    title: "Exercices ciblés",
-    description:
-      "Adaptation du programme selon les progrès pour une rééducation efficace et personnalisée.",
-  },
-];
-
-const faqs = [
-  {
-    question: "Qu'est-ce que la physiothérapie vestibulaire ?",
-    answer:
-      "La physiothérapie vestibulaire est une spécialisation qui traite les troubles de l'équilibre et les vertiges liés au système vestibulaire (oreille interne). Elle utilise des techniques spécifiques comme les manœuvres de repositionnement et des exercices de rééducation.",
-  },
-  {
-    question: "Combien de séances sont nécessaires ?",
-    answer:
-      "Le nombre de séances varie selon la pathologie. Pour un VPPB, 1 à 3 séances suffisent souvent. Pour un déficit vestibulaire, le traitement peut nécessiter 6 à 12 séances réparties sur plusieurs semaines.",
-  },
-  {
-    question: "Faut-il une ordonnance médicale ?",
-    answer:
-      "En Suisse, une prescription médicale est nécessaire pour que les séances de physiothérapie soient remboursées par l'assurance maladie de base (LAMal). Vous pouvez consulter votre médecin ou ORL.",
-  },
-  {
-    question: "Les séances sont-elles remboursées ?",
-    answer:
-      "Oui, avec une ordonnance médicale, les séances de physiothérapie vestibulaire sont prises en charge par l'assurance de base (LAMal), sous réserve de la franchise et de la quote-part.",
-  },
-];
-
-function LocalBusinessJsonLd() {
+function LocalBusinessJsonLd(props: {
+  phone: string;
+  email: string;
+  address: string;
+}) {
   const schema = {
     "@context": "https://schema.org",
     "@type": "Physiotherapy",
@@ -95,8 +31,8 @@ function LocalBusinessJsonLd() {
     description:
       "Physiothérapie vestibulaire spécialisée à Morges. Traitement des vertiges, troubles de l'équilibre, VPPB, maladie de Ménière.",
     url: "https://physio-vertige.ch",
-    telephone: "+41772747144",
-    email: "info@physio-vertige.ch",
+    telephone: props.phone.replace(/\s/g, ""),
+    email: props.email,
     address: {
       "@type": "PostalAddress",
       streetAddress: "Rue de Couvaloup 16",
@@ -105,15 +41,8 @@ function LocalBusinessJsonLd() {
       addressCountry: "CH",
       addressRegion: "Vaud",
     },
-    geo: {
-      "@type": "GeoCoordinates",
-      latitude: 46.5113,
-      longitude: 6.4982,
-    },
-    areaServed: {
-      "@type": "State",
-      name: "Vaud",
-    },
+    geo: { "@type": "GeoCoordinates", latitude: 46.5113, longitude: 6.4982 },
+    areaServed: { "@type": "State", name: "Vaud" },
     priceRange: "$$",
     openingHoursSpecification: [
       {
@@ -124,7 +53,6 @@ function LocalBusinessJsonLd() {
       },
     ],
   };
-
   return (
     <script
       type="application/ld+json"
@@ -133,40 +61,43 @@ function LocalBusinessJsonLd() {
   );
 }
 
-function FaqJsonLd() {
-  const schema = {
+export default async function HomePage() {
+  const [settings, services, faqs, testimonials] = await Promise.all([
+    getSiteSettings(),
+    getPublishedServices(),
+    getPublishedFaqs(),
+    getPublishedTestimonials(),
+  ]);
+
+  const phone = settings?.phone ?? "+41 77 274 71 44";
+  const email = settings?.email ?? "info@physio-vertige.ch";
+  const address = settings?.address ?? "Rue de Couvaloup 16, 1110 Morges";
+  const phoneTel = `tel:${phone.replace(/\s/g, "")}`;
+
+  const faqJsonLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: faqs.map((faq) => ({
+    mainEntity: faqs.map((f) => ({
       "@type": "Question",
-      name: faq.question,
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: faq.answer,
-      },
+      name: f.question,
+      acceptedAnswer: { "@type": "Answer", text: f.answer },
     })),
   };
 
   return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-    />
-  );
-}
-
-export default function HomePage() {
-  return (
     <>
-      <LocalBusinessJsonLd />
-      <FaqJsonLd />
+      <LocalBusinessJsonLd phone={phone} email={email} address={address} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
 
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-br from-teal-50 to-background py-16 sm:py-24">
         <div className="mx-auto flex max-w-6xl flex-col-reverse items-center gap-10 px-4 sm:px-6 lg:flex-row">
           <div className="flex-1 text-center lg:text-left">
             <p className="text-sm font-semibold uppercase tracking-wider text-primary">
-              Physiothérapie vestibulaire · Morges
+              {settings?.tagline ?? "Physiothérapie vestibulaire · Morges"}
             </p>
             <h1 className="mt-3 font-heading text-4xl font-bold leading-tight text-foreground sm:text-5xl">
               Arnaud Canadas — Physiothérapeute vestibulaire
@@ -176,11 +107,16 @@ export default function HomePage() {
               accompagne avec une approche claire, rassurante et spécialisée.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
-              <a href="tel:+41772747144" className={cn(buttonVariants({ size: "lg" }))}>
+              <a href={phoneTel} className={cn(buttonVariants({ size: "lg" }))}>
                 <Phone className="mr-2 h-5 w-5" />
                 Prendre rendez-vous
               </a>
-              <Link href="/vertiges-traites" className={cn(buttonVariants({ variant: "outline", size: "lg" }))}>
+              <Link
+                href="/vertiges-traites"
+                className={cn(
+                  buttonVariants({ variant: "outline", size: "lg" })
+                )}
+              >
                 En savoir plus
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
@@ -210,13 +146,33 @@ export default function HomePage() {
               Vertiges : causes et symptômes
             </h2>
             <p className="mt-4 text-muted-foreground">
-              Les vertiges sont plus qu&apos;un simple désagrément. Ils
-              provoquent des sensations de mouvement ou de rotation qui
-              perturbent fortement l&apos;équilibre et la vie quotidienne.
+              Les vertiges provoquent des sensations de mouvement ou de rotation
+              qui perturbent fortement l&apos;équilibre et la vie quotidienne.
             </p>
           </div>
           <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {symptoms.map((symptom) => (
+            {[
+              {
+                title: "Vertiges positionnels (VPPB)",
+                description:
+                  "Courts épisodes de vertiges causés par le déplacement de cristaux dans l'oreille interne.",
+              },
+              {
+                title: "Troubles de l'équilibre",
+                description:
+                  "Difficultés à marcher ou rester stable, souvent liées à un déficit vestibulaire.",
+              },
+              {
+                title: "Sensation de tête qui tourne",
+                description:
+                  "Vertiges persistants ou impression de rotation de l'environnement.",
+              },
+              {
+                title: "Instabilité à la marche",
+                description:
+                  "Risque accru de chutes, particulièrement chez les personnes âgées.",
+              },
+            ].map((symptom) => (
               <Card key={symptom.title} className="border-border/50">
                 <CardContent className="p-6">
                   <h3 className="font-heading text-lg font-semibold">
@@ -229,15 +185,10 @@ export default function HomePage() {
               </Card>
             ))}
           </div>
-          <p className="mx-auto mt-8 max-w-2xl text-center text-sm text-muted-foreground">
-            Ils surviennent lorsque le cerveau reçoit des informations
-            contradictoires provenant de l&apos;oreille interne, les yeux et les
-            capteurs de position du corps.
-          </p>
         </div>
       </section>
 
-      {/* Conditions / Pathologies */}
+      {/* Services from DB */}
       <section id="pathologies" className="bg-muted/30 py-16 sm:py-24">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <div className="mx-auto max-w-2xl text-center">
@@ -253,19 +204,19 @@ export default function HomePage() {
             </p>
           </div>
           <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {conditions.map((condition) => (
+            {services.map((service) => (
               <Link
-                key={condition.slug}
-                href={`/vertiges-traites/${condition.slug}`}
+                key={service.slug}
+                href={`/vertiges-traites/${service.slug}`}
                 className="group"
               >
                 <Card className="h-full transition-shadow group-hover:shadow-md">
                   <CardContent className="p-6">
                     <h3 className="font-heading font-semibold group-hover:text-primary">
-                      {condition.title}
+                      {service.title}
                     </h3>
                     <p className="mt-1 text-sm text-muted-foreground">
-                      {condition.description}
+                      {service.shortDescription}
                     </p>
                   </CardContent>
                 </Card>
@@ -292,7 +243,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* How a session works - Timeline */}
+      {/* Rehabilitation steps */}
       <section id="reeducation" className="py-16 sm:py-24">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <div className="grid gap-12 lg:grid-cols-2">
@@ -308,29 +259,43 @@ export default function HomePage() {
                 liés à l&apos;oreille interne, soulage les symptômes et restaure
                 un équilibre durable.
               </p>
-              <p className="mt-3 text-muted-foreground">
-                Si vos vertiges sont fréquents ou persistants, consultez un
-                spécialiste pour un diagnostic précis et un plan de traitement
-                adapté.
-              </p>
-              <a href="tel:+41772747144" className={cn(buttonVariants({ size: "lg" }), "mt-6")}>
+              <a
+                href={phoneTel}
+                className={cn(buttonVariants({ size: "lg" }), "mt-6")}
+              >
                 <Phone className="mr-2 h-5 w-5" />
                 Prendre rendez-vous
               </a>
             </div>
-
             <div className="flex flex-col gap-6">
-              {steps.map((step) => (
-                <div key={step.step} className="flex gap-4">
+              {[
+                {
+                  step: "1",
+                  title: "Évaluation personnalisée",
+                  description:
+                    "Analyse de l'équilibre, des mouvements oculaires et des symptômes.",
+                },
+                {
+                  step: "2",
+                  title: "Manœuvres pour VPPB",
+                  description:
+                    "Repositionnement des cristaux ou désensibilisation par mouvements répétés.",
+                },
+                {
+                  step: "3",
+                  title: "Exercices ciblés",
+                  description:
+                    "Adaptation du programme selon les progrès pour une rééducation efficace.",
+                },
+              ].map((s) => (
+                <div key={s.step} className="flex gap-4">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
-                    {step.step}
+                    {s.step}
                   </div>
                   <div>
-                    <h3 className="font-heading font-semibold">
-                      {step.title}
-                    </h3>
+                    <h3 className="font-heading font-semibold">{s.title}</h3>
                     <p className="mt-1 text-sm text-muted-foreground">
-                      {step.description}
+                      {s.description}
                     </p>
                   </div>
                 </div>
@@ -340,8 +305,41 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Testimonials from DB */}
+      {testimonials.length > 0 && (
+        <section className="bg-muted/30 py-16 sm:py-24">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6">
+            <div className="mx-auto max-w-2xl text-center">
+              <p className="text-sm font-semibold uppercase tracking-wider text-primary">
+                Témoignages
+              </p>
+              <h2 className="mt-2 font-heading text-3xl font-bold">
+                Ce que disent nos patients
+              </h2>
+            </div>
+            <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {testimonials.map((t) => (
+                <Card key={t.id}>
+                  <CardContent className="p-6">
+                    <div className="flex gap-1 text-primary">
+                      {Array.from({ length: t.rating ?? 5 }).map((_, i) => (
+                        <span key={i}>★</span>
+                      ))}
+                    </div>
+                    <p className="mt-3 text-sm text-muted-foreground italic">
+                      &ldquo;{t.content}&rdquo;
+                    </p>
+                    <p className="mt-4 text-sm font-semibold">{t.authorName}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Trust signals */}
-      <section className="border-y bg-muted/30 py-12">
+      <section className="border-y py-12">
         <div className="mx-auto grid max-w-4xl grid-cols-2 gap-8 px-4 text-center sm:grid-cols-4 sm:px-6">
           {[
             { value: "10+", label: "Ans d'expérience" },
@@ -361,34 +359,39 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* FAQ */}
-      <section className="py-16 sm:py-24">
-        <div className="mx-auto max-w-3xl px-4 sm:px-6">
-          <div className="text-center">
-            <p className="text-sm font-semibold uppercase tracking-wider text-primary">
-              FAQ
-            </p>
-            <h2 className="mt-2 font-heading text-3xl font-bold">
-              Questions fréquentes
-            </h2>
+      {/* FAQ from DB */}
+      {faqs.length > 0 && (
+        <section className="py-16 sm:py-24">
+          <div className="mx-auto max-w-3xl px-4 sm:px-6">
+            <div className="text-center">
+              <p className="text-sm font-semibold uppercase tracking-wider text-primary">
+                FAQ
+              </p>
+              <h2 className="mt-2 font-heading text-3xl font-bold">
+                Questions fréquentes
+              </h2>
+            </div>
+            <Accordion className="mt-10">
+              {faqs.map((faq) => (
+                <AccordionItem key={faq.id} value={`faq-${faq.id}`}>
+                  <AccordionTrigger className="text-left font-heading font-semibold">
+                    {faq.question}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground">
+                    {faq.answer}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
           </div>
-          <Accordion className="mt-10">
-            {faqs.map((faq, i) => (
-              <AccordionItem key={i} value={`faq-${i}`}>
-                <AccordionTrigger className="text-left font-heading font-semibold">
-                  {faq.question}
-                </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground">
-                  {faq.answer}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Contact CTA */}
-      <section id="contact" className="bg-primary py-16 text-primary-foreground sm:py-24">
+      <section
+        id="contact"
+        className="bg-primary py-16 text-primary-foreground sm:py-24"
+      >
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <div className="text-center">
             <h2 className="font-heading text-3xl font-bold">
@@ -414,22 +417,28 @@ export default function HomePage() {
               </span>
             </a>
             <a
-              href="mailto:info@physio-vertige.ch"
+              href={`mailto:${email}`}
               className="flex items-center gap-3 rounded-lg bg-primary-foreground/10 px-6 py-4 transition-colors hover:bg-primary-foreground/20"
             >
               <Mail className="h-5 w-5" />
-              info@physio-vertige.ch
+              {email}
             </a>
             <a
-              href="tel:+41772747144"
+              href={phoneTel}
               className="flex items-center gap-3 rounded-lg bg-primary-foreground/10 px-6 py-4 transition-colors hover:bg-primary-foreground/20"
             >
               <Phone className="h-5 w-5" />
-              +41 77 274 71 44
+              {phone}
             </a>
           </div>
           <div className="mt-8 text-center">
-            <Link href="/contact" className={cn(buttonVariants({ size: "lg", variant: "secondary" }), "text-primary")}>
+            <Link
+              href="/contact"
+              className={cn(
+                buttonVariants({ size: "lg", variant: "secondary" }),
+                "text-primary"
+              )}
+            >
               <CheckCircle className="mr-2 h-5 w-5" />
               Formulaire de contact
             </Link>

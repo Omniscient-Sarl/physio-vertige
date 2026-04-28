@@ -1,19 +1,14 @@
 import type { MetadataRoute } from "next";
+import { getPublishedServices, getPublishedBlogPosts } from "@/db/queries";
 
 const BASE_URL = "https://physio-vertige.ch";
 
-const services = [
-  "vppb",
-  "deficit-vestibulaire",
-  "maladie-de-meniere",
-  "presbyvestibulie",
-  "pppd",
-  "causes-neurologiques",
-];
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const [services, posts] = await Promise.all([
+    getPublishedServices(),
+    getPublishedBlogPosts(),
+  ]);
 
-const blogPosts = ["comprendre-le-vppb-vertiges-positionnels"];
-
-export default function sitemap(): MetadataRoute.Sitemap {
   const staticPages: MetadataRoute.Sitemap = [
     { url: BASE_URL, lastModified: new Date(), changeFrequency: "weekly", priority: 1 },
     { url: `${BASE_URL}/le-physiotherapeute`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.8 },
@@ -25,16 +20,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE_URL}/politique-de-confidentialite`, lastModified: new Date(), changeFrequency: "yearly", priority: 0.3 },
   ];
 
-  const servicePages: MetadataRoute.Sitemap = services.map((slug) => ({
-    url: `${BASE_URL}/vertiges-traites/${slug}`,
+  const servicePages: MetadataRoute.Sitemap = services.map((s) => ({
+    url: `${BASE_URL}/vertiges-traites/${s.slug}`,
     lastModified: new Date(),
     changeFrequency: "monthly",
     priority: 0.8,
   }));
 
-  const blogPages: MetadataRoute.Sitemap = blogPosts.map((slug) => ({
-    url: `${BASE_URL}/blog/${slug}`,
-    lastModified: new Date(),
+  const blogPages: MetadataRoute.Sitemap = posts.map((p) => ({
+    url: `${BASE_URL}/blog/${p.slug}`,
+    lastModified: p.updatedAt ?? new Date(),
     changeFrequency: "monthly",
     priority: 0.7,
   }));
