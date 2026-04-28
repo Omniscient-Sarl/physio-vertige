@@ -14,9 +14,10 @@ const blogSchema = z.object({
   excerpt: z.string().optional(),
   content: z.string().optional(),
   coverImageUrl: z.string().optional(),
-  status: z.enum(["draft", "published"]).default("draft"),
+  status: z.enum(["draft", "published"]),
   author: z.string().optional(),
   tags: z.array(z.string()).default([]),
+  category: z.string().optional(),
 });
 
 export async function createBlogPost(data: z.infer<typeof blogSchema>) {

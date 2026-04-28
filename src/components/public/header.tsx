@@ -2,49 +2,119 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Phone } from "lucide-react";
+import { Phone, ChevronDown, ArrowRight } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
+const conditions = [
+  { slug: "vppb", label: "VPPB (vertige positionnel)" },
+  { slug: "nevrite-vestibulaire", label: "Névrite vestibulaire" },
+  { slug: "maladie-de-meniere", label: "Maladie de Ménière" },
+  { slug: "migraine-vestibulaire", label: "Migraine vestibulaire" },
+  { slug: "vertige-cervicogenique", label: "Vertige cervicogénique" },
+  { slug: "deficit-vestibulaire", label: "Déficit vestibulaire" },
+  { slug: "mal-de-debarquement", label: "Mal de débarquement" },
+  { slug: "vertige-post-commotion", label: "Vertige post-commotion" },
+];
+
 const navLinks = [
-  { href: "/vertiges-traites", label: "Vertiges traités" },
   { href: "/le-physiotherapeute", label: "Le physiothérapeute" },
   { href: "/blog", label: "Blog" },
-  { href: "/cabinet", label: "Cabinet" },
   { href: "/contact", label: "Contact" },
 ];
 
 export function Header() {
   const [open, setOpen] = useState(false);
+  const [megaOpen, setMegaOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-        <Link href="/" className="font-heading text-xl font-bold text-primary">
+        <Link
+          href="/"
+          className="font-heading text-xl font-bold text-primary"
+        >
           Physio-Vertige
         </Link>
 
-        <nav className="hidden items-center gap-6 md:flex" aria-label="Navigation principale">
+        <nav
+          className="hidden items-center gap-1 md:flex"
+          aria-label="Navigation principale"
+        >
+          {/* Mega-menu: Vertiges traités */}
+          <div
+            className="relative"
+            onMouseEnter={() => setMegaOpen(true)}
+            onMouseLeave={() => setMegaOpen(false)}
+          >
+            <Link
+              href="/vertiges-traites"
+              className="flex items-center gap-1 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Vertiges traités
+              <ChevronDown className="h-3.5 w-3.5" />
+            </Link>
+            {megaOpen && (
+              <div className="absolute left-1/2 top-full z-50 w-[520px] -translate-x-1/2 pt-2">
+                <div className="rounded-xl border border-border/60 bg-card p-5 shadow-lg">
+                  <div className="grid grid-cols-2 gap-1">
+                    {conditions.map((c) => (
+                      <Link
+                        key={c.slug}
+                        href={`/vertiges-traites/${c.slug}`}
+                        className="rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                        onClick={() => setMegaOpen(false)}
+                      >
+                        {c.label}
+                      </Link>
+                    ))}
+                  </div>
+                  <div className="mt-3 border-t pt-3">
+                    <Link
+                      href="/vertiges-traites"
+                      className="flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+                      onClick={() => setMegaOpen(false)}
+                    >
+                      Voir toutes les conditions
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+              className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
               {link.label}
             </Link>
           ))}
-          <a href="tel:+41772747144" className={cn(buttonVariants({ size: "sm" }))}>
+
+          <a
+            href="tel:+41772747144"
+            className={cn(buttonVariants({ size: "sm" }), "ml-3")}
+          >
             <Phone className="mr-2 h-4 w-4" />
             Prendre rendez-vous
           </a>
         </nav>
 
+        {/* Mobile menu */}
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger
-            render={<Button variant="ghost" size="icon" aria-label="Ouvrir le menu" />}
+            render={
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Ouvrir le menu"
+              />
+            }
             className="md:hidden"
           >
             <svg
@@ -61,19 +131,39 @@ export function Header() {
               />
             </svg>
           </SheetTrigger>
-          <SheetContent side="right" className="w-72">
-            <nav className="mt-8 flex flex-col gap-4">
+          <SheetContent side="right" className="w-80 overflow-y-auto">
+            <nav className="mt-8 flex flex-col gap-1">
+              <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Vertiges traités
+              </p>
+              {conditions.map((c) => (
+                <Link
+                  key={c.slug}
+                  href={`/vertiges-traites/${c.slug}`}
+                  onClick={() => setOpen(false)}
+                  className="rounded-lg px-3 py-2 text-sm text-foreground hover:bg-accent"
+                >
+                  {c.label}
+                </Link>
+              ))}
+
+              <div className="my-4 border-t" />
+
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
                   onClick={() => setOpen(false)}
-                  className="text-lg font-medium text-foreground"
+                  className="rounded-lg px-3 py-2 text-base font-medium text-foreground hover:bg-accent"
                 >
                   {link.label}
                 </Link>
               ))}
-              <a href="tel:+41772747144" className={cn(buttonVariants(), "mt-4")}>
+
+              <a
+                href="tel:+41772747144"
+                className={cn(buttonVariants(), "mt-6")}
+              >
                 <Phone className="mr-2 h-4 w-4" />
                 Prendre rendez-vous
               </a>

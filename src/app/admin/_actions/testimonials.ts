@@ -9,9 +9,10 @@ import { z } from "zod";
 const testimonialSchema = z.object({
   authorName: z.string().min(1),
   content: z.string().min(1),
-  rating: z.number().int().min(1).max(5).default(5),
-  order: z.number().int().default(0),
-  published: z.boolean().default(true),
+  rating: z.number().int().min(1).max(5),
+  order: z.number().int(),
+  published: z.boolean(),
+  serviceId: z.number().int().nullable().optional(),
 });
 
 export async function createTestimonial(data: z.infer<typeof testimonialSchema>) {

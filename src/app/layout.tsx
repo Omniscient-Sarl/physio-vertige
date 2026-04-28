@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Lora } from "next/font/google";
+import { Inter, Fraunces } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
@@ -10,7 +10,7 @@ const inter = Inter({
   display: "swap",
 });
 
-const lora = Lora({
+const fraunces = Fraunces({
   variable: "--font-heading",
   subsets: ["latin"],
   display: "swap",
@@ -64,7 +64,7 @@ export default function RootLayout({
     <ClerkProvider>
       <html
         lang="fr-CH"
-        className={`${inter.variable} ${lora.variable} h-full antialiased`}
+        className={`${inter.variable} ${fraunces.variable} h-full antialiased`}
       >
         <body className="min-h-full flex flex-col">
           {children}
