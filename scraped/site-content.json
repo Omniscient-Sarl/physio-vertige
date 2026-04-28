@@ -1,0 +1,151 @@
+{
+  "pages": [
+    {
+      "slug": "/",
+      "title": "Physio-Vertige — Arnaud Canadas, Physiothérapeute vestibulaire à Morges",
+      "metaDescription": "Physiothérapie vestibulaire à Morges. Arnaud Canadas vous accompagne pour traiter vertiges, troubles de l'équilibre et instabilité. VPPB, rééducation vestibulaire.",
+      "ogTitle": "Physio-Vertige — Physiothérapie vestibulaire à Morges",
+      "ogDescription": "Traitement spécialisé des vertiges et troubles de l'équilibre par Arnaud Canadas, physiothérapeute vestibulaire.",
+      "googleVerification": "google14c1f8e9a76f78b5",
+      "sections": [
+        {
+          "type": "hero",
+          "label": "Physiothérapie vestibulaire · Morges",
+          "heading": "Arnaud Canadas — Physiothérapeute vestibulaire",
+          "body": "Vous ressentez des vertiges ou une instabilité ? Je vous accompagne avec une approche claire, rassurante et spécialisée.",
+          "cta": { "text": "Prendre rendez-vous", "url": "tel:+41772747144" },
+          "image": {
+            "src": "hero-vestibular-system.jpg",
+            "alt": "Illustration du système vestibulaire de l'oreille interne",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        {
+          "type": "services_grid",
+          "label": "Symptômes",
+          "heading": "Vertiges : causes et symptômes",
+          "body": "Les vertiges sont plus qu'un simple désagrément. Ils provoquent des sensations de mouvement ou de rotation qui perturbent fortement l'équilibre et la vie quotidienne.",
+          "footer": "Ils surviennent lorsque le cerveau reçoit des informations contradictoires provenant de l'oreille interne, les yeux et les capteurs de position du corps.",
+          "items": [
+            {
+              "icon": "ear",
+              "title": "Vertiges positionnels (VPPB)",
+              "description": "Courts épisodes de vertiges causés par le déplacement de cristaux dans l'oreille interne."
+            },
+            {
+              "icon": "balance",
+              "title": "Troubles de l'équilibre",
+              "description": "Difficultés à marcher ou rester stable, souvent liées à un déficit vestibulaire."
+            },
+            {
+              "icon": "head-spin",
+              "title": "Sensation de tête qui tourne",
+              "description": "Vertiges persistants ou impression de rotation de l'environnement."
+            },
+            {
+              "icon": "walking",
+              "title": "Instabilité à la marche",
+              "description": "Risque accru de chutes, particulièrement chez les personnes âgées."
+            }
+          ]
+        },
+        {
+          "type": "services_grid",
+          "label": "Pathologies",
+          "heading": "Causes fréquentes",
+          "body": "Prise en charge spécialisée des troubles vestibulaires les plus courants.",
+          "items": [
+            {
+              "icon": "crystal",
+              "title": "VPPB",
+              "description": "VPPB : cristaux déplacés dans l'oreille interne."
+            },
+            {
+              "icon": "nerve",
+              "title": "Déficit vestibulaire périphérique",
+              "description": "Déficit vestibulaire périphérique : infection ou problème circulatoire."
+            },
+            {
+              "icon": "ear-waves",
+              "title": "Maladie de Ménière",
+              "description": "Maladie de Ménière : vertiges associés à des troubles auditifs."
+            },
+            {
+              "icon": "aging",
+              "title": "Presbyvestibulie",
+              "description": "Presbyvestibulie : perte progressive liée à l'âge."
+            },
+            {
+              "icon": "chronic",
+              "title": "PPPD",
+              "description": "PPPD : vertiges chroniques et instabilité persistante."
+            },
+            {
+              "icon": "brain",
+              "title": "Causes neurologiques",
+              "description": "Causes neurologiques : sclérose en plaques, AVC, etc."
+            }
+          ],
+          "alert": {
+            "heading": "Consultez en urgence si :",
+            "items": [
+              "Vertiges soudains ou très intenses",
+              "Nausées, vomissements, fatigue intense ou troubles auditifs/visuels"
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "label": "Rééducation",
+          "heading": "La rééducation vestibulaire",
+          "body": "La physiothérapie vestibulaire traite la majorité des vertiges liés à l'oreille interne, soulage les symptômes et restaure un équilibre durable.",
+          "body2": "Si vos vertiges sont fréquents ou persistants, consultez un spécialiste pour un diagnostic précis et un plan de traitement adapté.",
+          "steps": [
+            {
+              "title": "Évaluation personnalisée",
+              "description": "Analyse de l'équilibre, des mouvements oculaires et des symptômes."
+            },
+            {
+              "title": "Manœuvres pour VPPB",
+              "description": "Repositionnement des cristaux ou désensibilisation par mouvements répétés."
+            },
+            {
+              "title": "Exercices ciblés",
+              "description": "Adaptation du programme selon les progrès pour une rééducation efficace et personnalisée."
+            }
+          ]
+        },
+        {
+          "type": "cta",
+          "label": "Contact",
+          "heading": "Prendre rendez-vous",
+          "contacts": [
+            {
+              "type": "address",
+              "value": "Rue de Couvaloup 16\n1110 Morges",
+              "url": "https://maps.google.com/?q=Rue+de+Couvaloup+16+1110+Morges"
+            },
+            {
+              "type": "email",
+              "value": "info@physio-vertige.ch",
+              "url": "mailto:info@physio-vertige.ch"
+            },
+            {
+              "type": "phone",
+              "value": "+41 77 274 71 44",
+              "url": "tel:+41772747144"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "globalContacts": {
+    "phone": "+41 77 274 71 44",
+    "email": "info@physio-vertige.ch",
+    "address": "Rue de Couvaloup 16, 1110 Morges",
+    "hours": "Sur rendez-vous",
+    "googleVerification": "google14c1f8e9a76f78b5"
+  }
+}
