@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import dynamic from "next/dynamic";
 import { Phone, ArrowRight } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
@@ -10,7 +11,6 @@ import {
   getGlobalTestimonials,
   getPublishedBlogPosts,
 } from "@/db/queries";
-import { TrustStrip } from "@/components/public/trust-strip";
 import { ProcessTimeline } from "@/components/public/process-timeline";
 import { ConditionCard } from "@/components/public/condition-card";
 import { FAQAccordion } from "@/components/public/faq-accordion";
@@ -27,7 +27,27 @@ export const revalidate = 60;
 function LocalBusinessJsonLd(props: {
   phone: string;
   email: string;
+  testimonials: Array<{ rating: number | null }>;
 }) {
+  const ratingsOnly = props.testimonials
+    .map((t) => t.rating)
+    .filter((r): r is number => r !== null && r > 0);
+
+  const aggregateRating =
+    ratingsOnly.length >= 3
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: (
+              ratingsOnly.reduce((a, b) => a + b, 0) / ratingsOnly.length
+            ).toFixed(1),
+            reviewCount: ratingsOnly.length,
+            bestRating: 5,
+            worstRating: 1,
+          },
+        }
+      : {};
+
   const schema = {
     "@context": "https://schema.org",
     "@type": "Physiotherapy",
@@ -56,6 +76,7 @@ function LocalBusinessJsonLd(props: {
         closes: "19:00",
       },
     ],
+    ...aggregateRating,
   };
   return (
     <script
@@ -79,48 +100,77 @@ export default async function HomePage() {
   const email = settings?.email ?? "info@physio-vertige.ch";
   const phoneTel = `tel:${phone.replace(/\s/g, "")}`;
   const latestPosts = blogPosts.slice(0, 3);
+  const heroImageUrl = settings?.homeHeroImageUrl;
+  const anatomyDiagramUrl = settings?.homeAnatomyDiagramUrl;
+  const anatomyCaption =
+    settings?.homeAnatomyCaption ??
+    "Labyrinthe membraneux — vestibulaire (orange) et cochléaire (vert)";
+  const googleBusinessUrl =
+    settings?.googleBusinessUrl ??
+    "https://www.google.com/maps/place/Physio-vertige+Arnaud+Canadas/data=!4m2!3m1!1s0x0:0x4760ff2303cc9752";
 
   return (
     <>
-      <LocalBusinessJsonLd phone={phone} email={email} />
+      <LocalBusinessJsonLd
+        phone={phone}
+        email={email}
+        testimonials={testimonials}
+      />
 
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-b from-teal-50 to-background py-20 md:py-32">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <div className="mx-auto max-w-3xl text-center">
-            <h1 className="font-heading text-4xl font-bold leading-[1.15] text-foreground sm:text-5xl lg:text-6xl">
-              Retrouvez votre équilibre.
-            </h1>
-            <p className="mt-4 text-lg text-muted-foreground sm:text-xl">
-              Physiothérapie vestibulaire spécialisée à Morges.
-              <br className="hidden sm:block" />
-              Arnaud Canadas vous accompagne pour traiter vos vertiges
-              avec une approche experte et rassurante.
-            </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
-              <a
-                href={phoneTel}
-                className={cn(buttonVariants({ size: "lg" }))}
-              >
-                <Phone className="mr-2 h-5 w-5" />
-                Prendre rendez-vous
-              </a>
-              <Link
-                href="/vertiges-traites"
-                className={cn(
-                  buttonVariants({ variant: "outline", size: "lg" })
-                )}
-              >
-                Comprendre mes vertiges
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
+          <div className="flex flex-col items-center gap-12 lg:flex-row lg:gap-16">
+            {/* Left: text */}
+            <div className="flex-1 text-center lg:text-left">
+              <h1 className="font-heading text-4xl font-bold leading-[1.15] text-foreground sm:text-5xl lg:text-6xl">
+                Retrouvez votre équilibre.
+              </h1>
+              <p className="mt-4 text-lg text-muted-foreground sm:text-xl">
+                Physiothérapie vestibulaire spécialisée à Morges.
+                <br className="hidden sm:block" />
+                Arnaud Canadas vous accompagne pour traiter vos vertiges
+                avec une approche experte et rassurante.
+              </p>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
+                <a
+                  href={phoneTel}
+                  className={cn(buttonVariants({ size: "lg" }))}
+                >
+                  <Phone className="mr-2 h-5 w-5" />
+                  Prendre rendez-vous
+                </a>
+                <Link
+                  href="/vertiges-traites"
+                  className={cn(
+                    buttonVariants({ variant: "outline", size: "lg" })
+                  )}
+                >
+                  Comprendre mes vertiges
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </div>
             </div>
+            {/* Right: portrait */}
+            {heroImageUrl && (
+              <div className="relative w-64 shrink-0 sm:w-72 lg:w-80">
+                <div className="aspect-[3/4] overflow-hidden rounded-2xl shadow-xl">
+                  <Image
+                    src={heroImageUrl}
+                    alt="Arnaud Canadas, physiothérapeute vestibulaire à Morges"
+                    width={640}
+                    height={853}
+                    priority
+                    fetchPriority="high"
+                    sizes="(max-width: 768px) 80vw, 320px"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </section>
-
-      {/* Trust strip */}
-      <TrustStrip />
 
       {/* Condition quiz grid */}
       <section className="py-20 md:py-32">
@@ -151,8 +201,64 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* Anatomy section */}
+      {anatomyDiagramUrl && (
+        <section className="bg-sand-50 py-20 md:py-32">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6">
+            <div className="flex flex-col items-center gap-10 lg:flex-row lg:gap-16">
+              <div className="flex-1">
+                <p className="text-sm font-semibold uppercase tracking-wider text-primary">
+                  Comprendre
+                </p>
+                <h2 className="mt-2 font-heading text-3xl font-bold sm:text-4xl">
+                  L&apos;oreille interne, votre centre de l&apos;équilibre
+                </h2>
+                <p className="mt-6 leading-relaxed text-muted-foreground">
+                  Au cœur de chaque oreille interne se trouvent deux
+                  systèmes : la cochlée, qui traite les sons, et le système
+                  vestibulaire, qui informe en permanence votre cerveau de la
+                  position et des mouvements de votre tête. Lorsque ce dernier
+                  dysfonctionne, vous ressentez des vertiges, des nausées ou une
+                  instabilité.
+                </p>
+                <p className="mt-4 leading-relaxed text-muted-foreground">
+                  Comprendre quelle structure est en cause permet de cibler la
+                  rééducation. Lors de la première consultation, Arnaud Canadas
+                  réalise des tests positionnels précis pour identifier la zone
+                  exacte responsable de vos symptômes — souvent en une seule
+                  séance.
+                </p>
+                <Link
+                  href="/vertiges-traites"
+                  className={cn(
+                    buttonVariants({ variant: "outline", size: "sm" }),
+                    "mt-6"
+                  )}
+                >
+                  Comprendre vos vertiges
+                  <ArrowRight className="ml-2 h-3.5 w-3.5" />
+                </Link>
+              </div>
+              <figure className="w-full max-w-sm shrink-0 lg:w-96">
+                <Image
+                  src={anatomyDiagramUrl}
+                  alt="Labyrinthe membraneux — schéma anatomique du système vestibulaire (vestibule en orange, cochlée en vert)"
+                  width={800}
+                  height={600}
+                  sizes="(max-width: 768px) 90vw, 384px"
+                  className="rounded-xl"
+                />
+                <figcaption className="mt-2 text-center text-xs text-muted-foreground">
+                  {anatomyCaption}
+                </figcaption>
+              </figure>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Process */}
-      <section className="bg-sand-50 py-20 md:py-32">
+      <section className="py-20 md:py-32">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <div className="mx-auto mb-12 max-w-2xl text-center">
             <p className="text-sm font-semibold uppercase tracking-wider text-primary">
@@ -188,7 +294,10 @@ export default async function HomePage() {
                 Ce que disent nos patients
               </h2>
             </div>
-            <TestimonialCarousel testimonials={testimonials} />
+            <TestimonialCarousel
+              testimonials={testimonials}
+              googleBusinessUrl={googleBusinessUrl}
+            />
           </div>
         </section>
       )}
