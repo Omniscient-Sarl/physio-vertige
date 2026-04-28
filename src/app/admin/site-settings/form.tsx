@@ -20,6 +20,10 @@ const schema = z.object({
   contactEmail: z.string().optional(),
   address: z.string().optional(),
   googleVerification: z.string().optional(),
+  googleBusinessUrl: z.string().optional(),
+  homeHeroImageUrl: z.string().optional(),
+  homeAnatomyDiagramUrl: z.string().optional(),
+  homeAnatomyCaption: z.string().optional(),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -32,6 +36,10 @@ type Settings = {
   contactEmail: string | null;
   address: string | null;
   googleVerification: string | null;
+  googleBusinessUrl: string | null;
+  homeHeroImageUrl: string | null;
+  homeAnatomyDiagramUrl: string | null;
+  homeAnatomyCaption: string | null;
 } | null;
 
 export function SiteSettingsForm({ settings }: { settings: Settings }) {
@@ -46,6 +54,10 @@ export function SiteSettingsForm({ settings }: { settings: Settings }) {
       contactEmail: settings?.contactEmail ?? "",
       address: settings?.address ?? "",
       googleVerification: settings?.googleVerification ?? "",
+      googleBusinessUrl: settings?.googleBusinessUrl ?? "",
+      homeHeroImageUrl: settings?.homeHeroImageUrl ?? "",
+      homeAnatomyDiagramUrl: settings?.homeAnatomyDiagramUrl ?? "",
+      homeAnatomyCaption: settings?.homeAnatomyCaption ?? "",
     },
   });
 
@@ -93,6 +105,22 @@ export function SiteSettingsForm({ settings }: { settings: Settings }) {
           <div>
             <Label htmlFor="googleVerification">Google verification</Label>
             <Input id="googleVerification" {...register("googleVerification")} className="mt-1" />
+          </div>
+          <div>
+            <Label htmlFor="googleBusinessUrl">Google Business URL</Label>
+            <Input id="googleBusinessUrl" {...register("googleBusinessUrl")} className="mt-1" placeholder="https://www.google.com/maps/place/..." />
+          </div>
+          <div>
+            <Label htmlFor="homeHeroImageUrl">Image hero (accueil)</Label>
+            <Input id="homeHeroImageUrl" {...register("homeHeroImageUrl")} className="mt-1" placeholder="URL UploadThing" />
+          </div>
+          <div>
+            <Label htmlFor="homeAnatomyDiagramUrl">Diagramme anatomie (accueil)</Label>
+            <Input id="homeAnatomyDiagramUrl" {...register("homeAnatomyDiagramUrl")} className="mt-1" placeholder="URL UploadThing" />
+          </div>
+          <div>
+            <Label htmlFor="homeAnatomyCaption">Légende diagramme anatomie</Label>
+            <Input id="homeAnatomyCaption" {...register("homeAnatomyCaption")} className="mt-1" />
           </div>
           <Button type="submit" disabled={pending}>
             {pending ? "Enregistrement..." : "Enregistrer"}

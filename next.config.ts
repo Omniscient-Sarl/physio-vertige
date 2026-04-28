@@ -7,7 +7,9 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "utfs.io" },
+      { protocol: "https", hostname: "*.ufs.sh" },
       { protocol: "https", hostname: "physio-vertige.ch" },
+      { protocol: "https", hostname: "lh3.googleusercontent.com" },
     ],
   },
 };

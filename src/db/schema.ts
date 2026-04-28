@@ -22,6 +22,10 @@ export const siteSettings = pgTable("site_settings", {
   socialLinks: jsonb("social_links").$type<Record<string, string>>(),
   defaultOgImageUrl: text("default_og_image_url"),
   googleVerification: text("google_verification"),
+  googleBusinessUrl: text("google_business_url"),
+  homeHeroImageUrl: text("home_hero_image_url"),
+  homeAnatomyDiagramUrl: text("home_anatomy_diagram_url"),
+  homeAnatomyCaption: text("home_anatomy_caption"),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
@@ -109,6 +113,11 @@ export const testimonials = pgTable("testimonials", {
   serviceId: integer("service_id").references(() => services.id, {
     onDelete: "set null",
   }),
+  authorAvatarUrl: text("author_avatar_url"),
+  source: varchar("source", { length: 50 }),
+  sourceUrl: text("source_url"),
+  relativeTime: text("relative_time"),
+  externalId: varchar("external_id", { length: 255 }),
 });
 
 export const faqs = pgTable("faqs", {

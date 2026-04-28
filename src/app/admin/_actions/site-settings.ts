@@ -14,6 +14,10 @@ const settingsSchema = z.object({
   contactEmail: z.string().email().optional().or(z.literal("")),
   address: z.string().optional(),
   googleVerification: z.string().optional(),
+  googleBusinessUrl: z.string().optional(),
+  homeHeroImageUrl: z.string().optional(),
+  homeAnatomyDiagramUrl: z.string().optional(),
+  homeAnatomyCaption: z.string().optional(),
 });
 
 export async function updateSiteSettings(
