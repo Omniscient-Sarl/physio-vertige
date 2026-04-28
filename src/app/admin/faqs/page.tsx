@@ -1,23 +1,20 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { db } from "@/db/index";
+import { faqs } from "@/db/schema";
+import { asc } from "drizzle-orm";
+import { FaqsAdmin } from "./client";
 
-export default function AdminFaqsPage() {
+export default async function AdminFaqsPage() {
+  const all = await db.select().from(faqs).orderBy(asc(faqs.order));
+
   return (
     <div>
       <h1 className="font-heading text-2xl font-bold">FAQ</h1>
       <p className="mt-1 text-muted-foreground">
         Gérez les questions fréquentes.
       </p>
-
-      <Card className="mt-8">
-        <CardHeader>
-          <CardTitle>Questions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground">
-            Connectez la base de données pour gérer les FAQ.
-          </p>
-        </CardContent>
-      </Card>
+      <div className="mt-8">
+        <FaqsAdmin faqs={all} />
+      </div>
     </div>
   );
 }
