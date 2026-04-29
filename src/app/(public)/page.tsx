@@ -319,7 +319,20 @@ export default async function HomePage() {
       <section className="py-20 md:py-32">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <div className="flex flex-col items-center gap-10 lg:flex-row">
-            <div className="h-48 w-48 shrink-0 rounded-full bg-teal-100" />
+            {settings?.aboutImageUrl ? (
+              <div className="h-48 w-48 shrink-0 overflow-hidden rounded-full shadow-lg">
+                <Image
+                  src={settings.aboutImageUrl}
+                  alt={settings.aboutImageAlt ?? "Arnaud Canadas, physiothérapeute vestibulaire spécialisé à Morges"}
+                  width={384}
+                  height={384}
+                  sizes="192px"
+                  className="h-full w-full object-cover object-[center_20%]"
+                />
+              </div>
+            ) : (
+              <div className="h-48 w-48 shrink-0 rounded-full bg-teal-100" />
+            )}
             <div>
               <p className="text-sm font-semibold uppercase tracking-wider text-primary">
                 Votre thérapeute
