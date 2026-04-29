@@ -20,9 +20,11 @@ const schema = z.object({
   category: z.string().optional(),
   order: z.number().int(),
   published: z.boolean(),
+  serviceId: z.number().int().nullable().optional(),
 });
 
 type FormData = z.infer<typeof schema>;
+type ServiceOption = { id: number; title: string };
 type Faq = {
   id: number;
   question: string;
@@ -30,9 +32,18 @@ type Faq = {
   category: string | null;
   order: number;
   published: boolean;
+  serviceId: number | null;
 };
 
-function FaqForm({ faq, onDone }: { faq?: Faq; onDone: () => void }) {
+function FaqForm({
+  faq,
+  services,
+  onDone,
+}: {
+  faq?: Faq;
+  services: ServiceOption[];
+  onDone: () => void;
+}) {
   const [pending, setPending] = useState(false);
   const { register, handleSubmit } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -43,17 +54,19 @@ function FaqForm({ faq, onDone }: { faq?: Faq; onDone: () => void }) {
           category: faq.category ?? "",
           order: faq.order,
           published: faq.published,
+          serviceId: faq.serviceId ?? null,
         }
-      : { order: 0, published: true },
+      : { order: 0, published: true, serviceId: null },
   });
 
   async function onSubmit(data: FormData) {
     setPending(true);
+    const payload = { ...data, serviceId: data.serviceId || null };
     const result = faq
-      ? await updateFaq(faq.id, data)
-      : await createFaq(data);
+      ? await updateFaq(faq.id, payload)
+      : await createFaq(payload);
     if (result.success) {
-      toast.success(faq ? "FAQ mise à jour" : "FAQ créée");
+      toast.success(faq ? "FAQ mise a jour" : "FAQ creee");
       onDone();
     } else toast.error(result.error ?? "Erreur");
     setPending(false);
@@ -66,14 +79,32 @@ function FaqForm({ faq, onDone }: { faq?: Faq; onDone: () => void }) {
         <Input {...register("question")} className="mt-1" />
       </div>
       <div>
-        <Label>Réponse</Label>
+        <Label>Reponse</Label>
         <Textarea {...register("answer")} className="mt-1" rows={4} />
       </div>
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <Label>Catégorie</Label>
+          <Label>Categorie</Label>
           <Input {...register("category")} className="mt-1" />
         </div>
+        <div>
+          <Label>Service associe</Label>
+          <select
+            {...register("serviceId", {
+              setValueAs: (v) => (v === "" || v === "null" ? null : Number(v)),
+            })}
+            className="mt-1 flex h-8 w-full rounded-lg border bg-background px-2.5 text-sm"
+          >
+            <option value="">Aucun (general)</option>
+            {services.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.title}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <Label>Ordre</Label>
           <Input
@@ -89,17 +120,23 @@ function FaqForm({ faq, onDone }: { faq?: Faq; onDone: () => void }) {
             {...register("published")}
             className="h-4 w-4"
           />
-          <Label htmlFor="published">Publié</Label>
+          <Label htmlFor="published">Publie</Label>
         </div>
       </div>
       <Button type="submit" disabled={pending}>
-        {pending ? "Enregistrement..." : faq ? "Mettre à jour" : "Créer"}
+        {pending ? "Enregistrement..." : faq ? "Mettre a jour" : "Creer"}
       </Button>
     </form>
   );
 }
 
-export function FaqsAdmin({ faqs }: { faqs: Faq[] }) {
+export function FaqsAdmin({
+  faqs,
+  services,
+}: {
+  faqs: Faq[];
+  services: ServiceOption[];
+}) {
   const router = useRouter();
   const [editingId, setEditingId] = useState<number | null>(null);
   const [creating, setCreating] = useState(false);
@@ -107,7 +144,7 @@ export function FaqsAdmin({ faqs }: { faqs: Faq[] }) {
   async function handleDelete(id: number) {
     if (!confirm("Supprimer cette FAQ ?")) return;
     await deleteFaq(id);
-    toast.success("FAQ supprimée");
+    toast.success("FAQ supprimee");
     router.refresh();
   }
 
@@ -123,6 +160,7 @@ export function FaqsAdmin({ faqs }: { faqs: Faq[] }) {
           <CardContent className="p-6">
             <h3 className="mb-4 font-heading font-semibold">Nouvelle FAQ</h3>
             <FaqForm
+              services={services}
               onDone={() => {
                 setCreating(false);
                 router.refresh();
@@ -140,8 +178,11 @@ export function FaqsAdmin({ faqs }: { faqs: Faq[] }) {
                 <div className="flex items-center gap-2">
                   <p className="font-semibold">{faq.question}</p>
                   <span className="text-xs text-muted-foreground">
-                    #{faq.order} · {faq.published ? "Publié" : "Brouillon"}
+                    #{faq.order} · {faq.published ? "Publie" : "Brouillon"}
                     {faq.category ? ` · ${faq.category}` : ""}
+                    {faq.serviceId
+                      ? ` · ${services.find((s) => s.id === faq.serviceId)?.title ?? "Service #" + faq.serviceId}`
+                      : ""}
                   </span>
                 </div>
                 <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
@@ -171,6 +212,7 @@ export function FaqsAdmin({ faqs }: { faqs: Faq[] }) {
               <CardContent className="border-t p-6">
                 <FaqForm
                   faq={faq}
+                  services={services}
                   onDone={() => {
                     setEditingId(null);
                     router.refresh();

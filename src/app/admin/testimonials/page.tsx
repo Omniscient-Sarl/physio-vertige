@@ -1,6 +1,6 @@
 import { db } from "@/db/index";
-import { testimonials } from "@/db/schema";
-import { asc } from "drizzle-orm";
+import { testimonials, services } from "@/db/schema";
+import { asc, eq } from "drizzle-orm";
 import { TestimonialsAdmin } from "./client";
 
 export default async function AdminTestimonialsPage() {
@@ -9,14 +9,23 @@ export default async function AdminTestimonialsPage() {
     .from(testimonials)
     .orderBy(asc(testimonials.order));
 
+  const publishedServices = await db
+    .select({ id: services.id, title: services.title })
+    .from(services)
+    .where(eq(services.published, true))
+    .orderBy(asc(services.order));
+
   return (
     <div>
-      <h1 className="font-heading text-2xl font-bold">Témoignages</h1>
+      <h1 className="font-heading text-2xl font-bold">Temoignages</h1>
       <p className="mt-1 text-muted-foreground">
-        Gérez les témoignages des patients.
+        Gerez les temoignages des patients.
       </p>
       <div className="mt-8">
-        <TestimonialsAdmin testimonials={all} />
+        <TestimonialsAdmin
+          testimonials={all}
+          services={publishedServices}
+        />
       </div>
     </div>
   );

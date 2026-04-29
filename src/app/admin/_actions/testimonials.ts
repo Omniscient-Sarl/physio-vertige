@@ -13,6 +13,7 @@ const testimonialSchema = z.object({
   order: z.number().int(),
   published: z.boolean(),
   serviceId: z.number().int().nullable().optional(),
+  authorAvatarUrl: z.string().optional(),
   source: z.string().optional(),
   sourceUrl: z.string().optional(),
   relativeTime: z.string().optional(),
