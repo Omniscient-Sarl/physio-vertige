@@ -3,11 +3,16 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { generateUploadButton } from "@uploadthing/react";
+import type { OurFileRouter } from "@/app/api/uploadthing/core";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Trash2, Copy, ImageIcon } from "lucide-react";
-import { deleteMedia } from "@/app/admin/_actions/media";
+import { Trash2, Copy, ImageIcon, Check, Pencil } from "lucide-react";
+import { deleteMedia, createMedia, updateMediaAlt } from "@/app/admin/_actions/media";
 import Image from "next/image";
+
+const UploadButton = generateUploadButton<OurFileRouter>();
 
 type MediaItem = {
   id: number;
@@ -22,18 +27,30 @@ type MediaItem = {
 function MediaCard({ item }: { item: MediaItem }) {
   const router = useRouter();
   const [deleting, setDeleting] = useState(false);
+  const [editingAlt, setEditingAlt] = useState(false);
+  const [altText, setAltText] = useState(item.altText);
+  const [savingAlt, setSavingAlt] = useState(false);
 
   async function handleDelete() {
-    if (!confirm("Supprimer ce média ?")) return;
+    if (!confirm("Supprimer ce media ?")) return;
     setDeleting(true);
     await deleteMedia(item.id);
-    toast.success("Média supprimé");
+    toast.success("Media supprime");
     router.refresh();
   }
 
   function handleCopy() {
     navigator.clipboard.writeText(item.uploadthingUrl);
-    toast.success("URL copiée");
+    toast.success("URL copiee");
+  }
+
+  async function handleSaveAlt() {
+    setSavingAlt(true);
+    await updateMediaAlt(item.id, altText);
+    toast.success("Texte alternatif mis a jour");
+    setEditingAlt(false);
+    setSavingAlt(false);
+    router.refresh();
   }
 
   return (
@@ -54,7 +71,38 @@ function MediaCard({ item }: { item: MediaItem }) {
             </div>
           )}
         </div>
-        <p className="mt-2 truncate text-sm font-medium">{item.altText}</p>
+        <div className="mt-2">
+          {editingAlt ? (
+            <div className="flex gap-1">
+              <Input
+                value={altText}
+                onChange={(e) => setAltText(e.target.value)}
+                className="h-7 text-xs"
+              />
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 shrink-0"
+                onClick={handleSaveAlt}
+                disabled={savingAlt}
+              >
+                <Check className="h-3 w-3" />
+              </Button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1">
+              <p className="flex-1 truncate text-sm font-medium">
+                {item.altText}
+              </p>
+              <button
+                onClick={() => setEditingAlt(true)}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <Pencil className="h-3 w-3" />
+              </button>
+            </div>
+          )}
+        </div>
         <p className="truncate text-xs text-muted-foreground">
           {item.uploadthingKey}
         </p>
@@ -79,13 +127,49 @@ function MediaCard({ item }: { item: MediaItem }) {
 }
 
 export function MediaAdmin({ items }: { items: MediaItem[] }) {
+  const router = useRouter();
+  const [uploading, setUploading] = useState(false);
+
   return (
     <div>
-      <p className="mb-6 text-sm text-muted-foreground">
-        Les images sont uploadées via UploadThing. Cette page permet de consulter et supprimer les médias existants.
-      </p>
+      <div className="mb-6">
+        <UploadButton
+          endpoint="imageUploader"
+          onUploadBegin={() => setUploading(true)}
+          onClientUploadComplete={async (res) => {
+            setUploading(false);
+            if (res?.[0]) {
+              const file = res[0];
+              const alt = prompt("Texte alternatif pour cette image :") ?? file.name;
+              await createMedia({
+                uploadthingUrl: file.ufsUrl,
+                uploadthingKey: file.key,
+                altText: alt,
+                width: undefined,
+                height: undefined,
+              });
+              toast.success("Image uploadee");
+              router.refresh();
+            }
+          }}
+          onUploadError={(err) => {
+            setUploading(false);
+            toast.error(err.message);
+          }}
+          appearance={{
+            button:
+              "bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 text-sm font-medium",
+            allowedContent: "text-xs text-muted-foreground mt-1",
+          }}
+          content={{
+            button: uploading ? "Upload en cours..." : "Uploader une image",
+            allowedContent: "Images jusqu'a 8 Mo",
+          }}
+        />
+      </div>
+
       {items.length === 0 ? (
-        <p className="text-muted-foreground">Aucun média.</p>
+        <p className="text-muted-foreground">Aucun media.</p>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {items.map((item) => (

@@ -13,20 +13,28 @@ const settingsSchema = z.object({
   email: z.string().email().optional().or(z.literal("")),
   contactEmail: z.string().email().optional().or(z.literal("")),
   address: z.string().optional(),
+  // Hero
+  homeHeroImageUrl: z.string().optional(),
+  homeHeroImageAlt: z.string().optional(),
+  // Mini-bio
+  aboutImageUrl: z.string().optional(),
+  aboutImageAlt: z.string().optional(),
+  // Anatomy
+  homeAnatomyDiagramUrl: z.string().optional(),
+  homeAnatomyCaption: z.string().optional(),
+  // SEO & Google
+  defaultOgImageUrl: z.string().optional(),
   googleVerification: z.string().optional(),
   googleBusinessUrl: z.string().optional(),
   googleReviewCount: z.string().optional(),
   googleAverageRating: z.string().optional(),
-  homeHeroImageUrl: z.string().optional(),
-  homeAnatomyDiagramUrl: z.string().optional(),
-  homeAnatomyCaption: z.string().optional(),
 });
 
 export async function updateSiteSettings(
   data: z.infer<typeof settingsSchema>
 ): Promise<{ success: boolean; error?: string }> {
   const parsed = settingsSchema.safeParse(data);
-  if (!parsed.success) return { success: false, error: "Données invalides" };
+  if (!parsed.success) return { success: false, error: "Donnees invalides" };
 
   const existing = await db.select().from(siteSettings).limit(1);
 
@@ -49,5 +57,6 @@ export async function updateSiteSettings(
 
   revalidatePath("/");
   revalidatePath("/contact");
+  revalidatePath("/le-physiotherapeute");
   return { success: true };
 }

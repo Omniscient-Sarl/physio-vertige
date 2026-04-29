@@ -6,6 +6,11 @@ import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
+const faqItemSchema = z.object({
+  question: z.string(),
+  answer: z.string(),
+});
+
 const blogSchema = z.object({
   slug: z.string().min(1),
   title: z.string().min(1),
@@ -18,6 +23,8 @@ const blogSchema = z.object({
   author: z.string().optional(),
   tags: z.array(z.string()).default([]),
   category: z.string().optional(),
+  faq: z.array(faqItemSchema).default([]),
+  publishedAt: z.date().nullable().optional(),
 });
 
 export async function createBlogPost(data: z.infer<typeof blogSchema>) {
@@ -25,7 +32,7 @@ export async function createBlogPost(data: z.infer<typeof blogSchema>) {
   if (!parsed.success) return { success: false, error: "Données invalides" };
   await db.insert(blogPosts).values({
     ...parsed.data,
-    publishedAt: parsed.data.status === "published" ? new Date() : null,
+    publishedAt: parsed.data.publishedAt ?? (parsed.data.status === "published" ? new Date() : null),
   });
   revalidatePath("/blog");
   return { success: true };
@@ -34,9 +41,10 @@ export async function createBlogPost(data: z.infer<typeof blogSchema>) {
 export async function updateBlogPost(id: number, data: z.infer<typeof blogSchema>) {
   const parsed = blogSchema.safeParse(data);
   if (!parsed.success) return { success: false, error: "Données invalides" };
+  const { publishedAt, ...rest } = parsed.data;
   await db
     .update(blogPosts)
-    .set({ ...parsed.data, updatedAt: new Date() })
+    .set({ ...rest, publishedAt: publishedAt ?? undefined, updatedAt: new Date() })
     .where(eq(blogPosts.id, id));
   revalidatePath("/blog");
   revalidatePath(`/blog/${parsed.data.slug}`);
