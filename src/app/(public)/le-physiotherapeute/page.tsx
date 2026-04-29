@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { Phone } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { getSiteSettings } from "@/db/queries";
+
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "Le Physiothérapeute — Arnaud Canadas",
@@ -38,7 +42,13 @@ function PersonJsonLd() {
   );
 }
 
-export default function PhysiotherapeutePage() {
+export default async function PhysiotherapeutePage() {
+  const settings = await getSiteSettings();
+  const aboutImageUrl = settings?.aboutImageUrl;
+  const aboutImageAlt =
+    settings?.aboutImageAlt ??
+    "Arnaud Canadas, physiothérapeute vestibulaire spécialisé à Morges";
+
   return (
     <>
       <PersonJsonLd />
@@ -51,8 +61,22 @@ export default function PhysiotherapeutePage() {
             / <span>Le physiothérapeute</span>
           </nav>
 
-          <div className="mx-auto max-w-2xl">
-            <div>
+          <div className={aboutImageUrl ? "grid gap-10 lg:grid-cols-5" : "mx-auto max-w-2xl"}>
+            {aboutImageUrl && (
+              <div className="lg:col-span-2">
+                <div className="relative aspect-[3/4] overflow-hidden rounded-2xl shadow-lg">
+                  <Image
+                    src={aboutImageUrl}
+                    alt={aboutImageAlt}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 320px"
+                    className="object-cover"
+                  />
+                </div>
+              </div>
+            )}
+
+            <div className={aboutImageUrl ? "lg:col-span-3" : ""}>
               <p className="text-sm font-semibold uppercase tracking-wider text-primary">
                 Le physiothérapeute
               </p>
