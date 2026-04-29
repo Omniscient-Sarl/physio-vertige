@@ -4,10 +4,12 @@ import { notFound } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 import {
   getPublishedBlogPosts,
   getBlogPostBySlug,
   getRelatedBlogPosts,
+  getSiteSettings,
 } from "@/db/queries";
 import { MarkdownRenderer } from "@/components/public/markdown-renderer";
 import { extractHeadings } from "@/lib/markdown-utils";
@@ -48,9 +50,10 @@ function readingTime(content: string | null): string {
 
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
-  const [post, related] = await Promise.all([
+  const [post, related, settings] = await Promise.all([
     getBlogPostBySlug(slug),
     getRelatedBlogPosts(slug, 3),
+    getSiteSettings(),
   ]);
   if (!post) notFound();
 
@@ -161,7 +164,17 @@ export default async function BlogPostPage({ params }: Props) {
 
             <div className="mt-6 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
-                <div className="h-10 w-10 rounded-full bg-teal-100" />
+                {settings?.aboutImageUrl ? (
+                  <Image
+                    src={settings.aboutImageUrl}
+                    alt={settings.aboutImageAlt ?? "Arnaud Canadas"}
+                    width={40}
+                    height={40}
+                    className="h-10 w-10 rounded-full object-cover object-[center_20%]"
+                  />
+                ) : (
+                  <div className="h-10 w-10 rounded-full bg-teal-100" />
+                )}
                 <div>
                   <p className="font-medium text-foreground">{post.author}</p>
                   <p className="text-xs">Physiothérapeute vestibulaire</p>
@@ -194,7 +207,17 @@ export default async function BlogPostPage({ params }: Props) {
               {/* Author bio */}
               <div className="mt-16 rounded-xl border border-border/60 bg-sand-50 p-6 sm:p-8">
                 <div className="flex items-center gap-4">
-                  <div className="h-16 w-16 shrink-0 rounded-full bg-teal-100" />
+                  {settings?.aboutImageUrl ? (
+                    <Image
+                      src={settings.aboutImageUrl}
+                      alt={settings.aboutImageAlt ?? "Arnaud Canadas"}
+                      width={64}
+                      height={64}
+                      className="h-16 w-16 shrink-0 rounded-full object-cover object-[center_20%]"
+                    />
+                  ) : (
+                    <div className="h-16 w-16 shrink-0 rounded-full bg-teal-100" />
+                  )}
                   <div>
                     <p className="font-heading text-lg font-semibold">
                       {post.author}
