@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { getPublishedBlogPosts } from "@/db/queries";
+import { getPublishedBlogPosts, getPageContent } from "@/db/queries";
 
 export const revalidate = 60;
 
@@ -19,9 +19,17 @@ function readingTime(content: string | null): string {
 }
 
 export default async function BlogPage() {
-  const posts = await getPublishedBlogPosts();
+  const [posts, content] = await Promise.all([
+    getPublishedBlogPosts(),
+    getPageContent("/blog"),
+  ]);
   const featured = posts[0];
   const rest = posts.slice(1);
+
+  const hero = content?.get("blog_list_hero") ?? {};
+  const eyebrow = (hero.eyebrow as string) ?? "Blog";
+  const h1 = (hero.h1 as string) ?? "Comprendre les vertiges";
+  const intro = (hero.intro as string) ?? "Articles, conseils et actualités sur les vertiges et la rééducation vestibulaire.";
 
   return (
     <section className="py-16 md:py-24">
@@ -35,14 +43,13 @@ export default async function BlogPage() {
 
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-sm font-semibold uppercase tracking-wider text-primary">
-            Blog
+            {eyebrow}
           </p>
           <h1 className="mt-2 font-heading text-3xl font-bold sm:text-4xl">
-            Comprendre les vertiges
+            {h1}
           </h1>
           <p className="mt-4 text-muted-foreground">
-            Articles, conseils et actualités sur les vertiges et la
-            rééducation vestibulaire.
+            {intro}
           </p>
         </div>
 

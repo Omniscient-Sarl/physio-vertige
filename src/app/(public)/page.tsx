@@ -10,6 +10,7 @@ import {
   getGlobalFaqs,
   getGlobalTestimonials,
   getPublishedBlogPosts,
+  getPageContent,
 } from "@/db/queries";
 import { ProcessTimeline } from "@/components/public/process-timeline";
 import { ConditionCard } from "@/components/public/condition-card";
@@ -31,7 +32,6 @@ function LocalBusinessJsonLd(props: {
   googleAverageRating: string | null;
   testimonials: Array<{ rating: number | null }>;
 }) {
-  // Prefer explicit site_settings values, fall back to computed from testimonials
   const ratingsOnly = props.testimonials
     .map((t) => t.rating)
     .filter((r): r is number => r !== null && r > 0);
@@ -95,13 +95,14 @@ function LocalBusinessJsonLd(props: {
 }
 
 export default async function HomePage() {
-  const [settings, services, faqs, testimonials, blogPosts] =
+  const [settings, services, faqs, testimonials, blogPosts, content] =
     await Promise.all([
       getSiteSettings(),
       getPublishedServices(),
       getGlobalFaqs(),
       getGlobalTestimonials(),
       getPublishedBlogPosts(),
+      getPageContent("/"),
     ]);
 
   const phone = settings?.phone ?? "+41 77 274 71 44";
@@ -120,6 +121,32 @@ export default async function HomePage() {
     settings?.googleBusinessUrl ??
     "https://www.google.com/maps/place/Physio-vertige+Arnaud+Canadas/data=!4m2!3m1!1s0x0:0x4760ff2303cc9752";
 
+  // Read editorial content from DB with fallbacks
+  const c = (type: string, field: string, fallback: string) => {
+    const section = content?.get(type);
+    return (section?.[field] as string) ?? fallback;
+  };
+
+  const heroContent = content?.get("hero") ?? {};
+  const conditionsContent = content?.get("conditions_grid") ?? {};
+  const anatomyContent = content?.get("anatomy") ?? {};
+  const processContent = content?.get("process_timeline") ?? {};
+  const ctaCardContent = content?.get("cta_card") ?? {};
+  const testimonialsContent = content?.get("testimonials") ?? {};
+  const miniBioContent = content?.get("mini_bio") ?? {};
+  const blogTeaserContent = content?.get("blog_teaser") ?? {};
+  const faqContent = content?.get("faq") ?? {};
+  const finalCtaContent = content?.get("cta_fullwidth") ?? {};
+
+  const processSteps = (processContent.steps as Array<{ title: string; description: string }>) ?? [
+    { title: "Évaluation", description: "Bilan complet : tests oculomoteurs, manœuvres positionnelles, analyse de l'équilibre et de la marche." },
+    { title: "Diagnostic", description: "Identification précise du type de vertige et de son origine pour un traitement ciblé." },
+    { title: "Traitement", description: "Manœuvres de repositionnement, rééducation vestibulaire, exercices d'habituation personnalisés." },
+    { title: "Suivi", description: "Programme d'exercices à domicile et séances de contrôle pour une guérison durable." },
+  ];
+
+  const anatomyBodyParagraphs = ((anatomyContent.body as string) ?? "").split("\n\n").filter(Boolean);
+
   return (
     <>
       <LocalBusinessJsonLd
@@ -134,16 +161,12 @@ export default async function HomePage() {
       <section className="relative overflow-hidden bg-gradient-to-b from-teal-50 to-background py-20 md:py-32">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <div className="flex flex-col items-center gap-12 lg:flex-row lg:gap-16">
-            {/* Left: text */}
             <div className="flex-1 text-center lg:text-left">
               <h1 className="font-heading text-4xl font-bold leading-[1.15] text-foreground sm:text-5xl lg:text-6xl">
-                Retrouvez votre équilibre.
+                {(heroContent.h1 as string) ?? "Retrouvez votre équilibre."}
               </h1>
-              <p className="mt-4 text-lg text-muted-foreground sm:text-xl">
-                Physiothérapie vestibulaire spécialisée à Morges.
-                <br className="hidden sm:block" />
-                Arnaud Canadas vous accompagne pour traiter vos vertiges
-                avec une approche experte et rassurante.
+              <p className="mt-4 text-lg text-muted-foreground sm:text-xl whitespace-pre-line">
+                {(heroContent.subhead as string) ?? "Physiothérapie vestibulaire spécialisée à Morges.\nArnaud Canadas vous accompagne pour traiter vos vertiges avec une approche experte et rassurante."}
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
                 <a
@@ -164,7 +187,6 @@ export default async function HomePage() {
                 </Link>
               </div>
             </div>
-            {/* Right: portrait */}
             {heroImageUrl && (
               <div className="relative w-72 shrink-0 sm:w-80 lg:w-96">
                 <div className="aspect-[16/9] overflow-hidden rounded-2xl shadow-xl">
@@ -190,14 +212,13 @@ export default async function HomePage() {
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <div className="mx-auto max-w-2xl text-center">
             <p className="text-sm font-semibold uppercase tracking-wider text-primary">
-              Diagnostic
+              {(conditionsContent.eyebrow as string) ?? "Diagnostic"}
             </p>
             <h2 className="mt-2 font-heading text-3xl font-bold sm:text-4xl">
-              Quel type de vertige avez-vous ?
+              {(conditionsContent.h2 as string) ?? "Quel type de vertige avez-vous ?"}
             </h2>
             <p className="mt-4 text-muted-foreground">
-              Chaque vertige a une cause spécifique et un traitement adapté.
-              Identifiez votre situation et découvrez comment je peux vous aider.
+              {(conditionsContent.body as string) ?? "Chaque vertige a une cause spécifique et un traitement adapté. Identifiez votre situation et découvrez comment je peux vous aider."}
             </p>
           </div>
           <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -221,26 +242,16 @@ export default async function HomePage() {
             <div className="flex flex-col items-center gap-10 lg:flex-row lg:gap-16">
               <div className="flex-1">
                 <p className="text-sm font-semibold uppercase tracking-wider text-primary">
-                  Comprendre
+                  {(anatomyContent.eyebrow as string) ?? "Comprendre"}
                 </p>
                 <h2 className="mt-2 font-heading text-3xl font-bold sm:text-4xl">
-                  L&apos;oreille interne, votre centre de l&apos;équilibre
+                  {(anatomyContent.h2 as string) ?? "L'oreille interne, votre centre de l'équilibre"}
                 </h2>
-                <p className="mt-6 leading-relaxed text-muted-foreground">
-                  Au cœur de chaque oreille interne se trouvent deux
-                  systèmes : la cochlée, qui traite les sons, et le système
-                  vestibulaire, qui informe en permanence votre cerveau de la
-                  position et des mouvements de votre tête. Lorsque ce dernier
-                  dysfonctionne, vous ressentez des vertiges, des nausées ou une
-                  instabilité.
-                </p>
-                <p className="mt-4 leading-relaxed text-muted-foreground">
-                  Comprendre quelle structure est en cause permet de cibler la
-                  rééducation. Lors de la première consultation, Arnaud Canadas
-                  réalise des tests positionnels précis pour identifier la zone
-                  exacte responsable de vos symptômes — souvent en une seule
-                  séance.
-                </p>
+                {anatomyBodyParagraphs.map((p, i) => (
+                  <p key={i} className={`${i === 0 ? "mt-6" : "mt-4"} leading-relaxed text-muted-foreground`}>
+                    {p}
+                  </p>
+                ))}
                 <Link
                   href="/vertiges-traites"
                   className={cn(
@@ -275,13 +286,13 @@ export default async function HomePage() {
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <div className="mx-auto mb-12 max-w-2xl text-center">
             <p className="text-sm font-semibold uppercase tracking-wider text-primary">
-              Prise en charge
+              {(processContent.eyebrow as string) ?? "Prise en charge"}
             </p>
             <h2 className="mt-2 font-heading text-3xl font-bold sm:text-4xl">
-              Comment se déroule votre traitement ?
+              {(processContent.h2 as string) ?? "Comment se déroule votre traitement ?"}
             </h2>
           </div>
-          <ProcessTimeline />
+          <ProcessTimeline steps={processSteps} />
         </div>
       </section>
 
@@ -289,8 +300,8 @@ export default async function HomePage() {
       <section className="py-20 md:py-32">
         <div className="mx-auto max-w-3xl px-4 sm:px-6">
           <CTABlock
-            title="Prêt à retrouver votre équilibre ?"
-            description="Un bilan vestibulaire permet d'identifier la cause de vos vertiges et de commencer le traitement adapté dès la première séance."
+            title={(ctaCardContent.title as string) ?? undefined}
+            description={(ctaCardContent.description as string) ?? undefined}
             phone={phone}
           />
         </div>
@@ -302,10 +313,10 @@ export default async function HomePage() {
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <div className="mx-auto mb-12 max-w-2xl text-center">
               <p className="text-sm font-semibold uppercase tracking-wider text-primary">
-                Témoignages
+                {(testimonialsContent.eyebrow as string) ?? "Témoignages"}
               </p>
               <h2 className="mt-2 font-heading text-3xl font-bold sm:text-4xl">
-                Ce que disent nos patients
+                {(testimonialsContent.h2 as string) ?? "Ce que disent nos patients"}
               </h2>
             </div>
             <TestimonialCarousel
@@ -336,17 +347,13 @@ export default async function HomePage() {
             )}
             <div>
               <p className="text-sm font-semibold uppercase tracking-wider text-primary">
-                Votre thérapeute
+                {(miniBioContent.eyebrow as string) ?? "Votre thérapeute"}
               </p>
               <h2 className="mt-2 font-heading text-3xl font-bold">
-                Arnaud Canadas
+                {(miniBioContent.h2 as string) ?? "Arnaud Canadas"}
               </h2>
               <p className="mt-4 max-w-xl leading-relaxed text-muted-foreground">
-                Physiothérapeute spécialisé en rééducation vestibulaire,
-                Arnaud Canadas accompagne depuis plus de 10 ans les patients
-                souffrant de vertiges et troubles de l&apos;équilibre.
-                Formé aux dernières techniques de diagnostic et de traitement,
-                il offre une prise en charge complète et personnalisée.
+                {(miniBioContent.body as string) ?? "Physiothérapeute spécialisé en rééducation vestibulaire, Arnaud Canadas accompagne depuis plus de 10 ans les patients souffrant de vertiges et troubles de l'équilibre. Formé aux dernières techniques de diagnostic et de traitement, il offre une prise en charge complète et personnalisée."}
               </p>
               <Link
                 href="/le-physiotherapeute"
@@ -369,10 +376,10 @@ export default async function HomePage() {
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <div className="mx-auto mb-12 max-w-2xl text-center">
               <p className="text-sm font-semibold uppercase tracking-wider text-primary">
-                Blog
+                {(blogTeaserContent.eyebrow as string) ?? "Blog"}
               </p>
               <h2 className="mt-2 font-heading text-3xl font-bold sm:text-4xl">
-                Comprendre les vertiges
+                {(blogTeaserContent.h2 as string) ?? "Comprendre les vertiges"}
               </h2>
             </div>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -427,10 +434,10 @@ export default async function HomePage() {
           <div className="mx-auto max-w-3xl px-4 sm:px-6">
             <div className="text-center">
               <p className="text-sm font-semibold uppercase tracking-wider text-primary">
-                FAQ
+                {(faqContent.eyebrow as string) ?? "FAQ"}
               </p>
               <h2 className="mt-2 font-heading text-3xl font-bold sm:text-4xl">
-                Questions fréquentes
+                {(faqContent.h2 as string) ?? "Questions fréquentes"}
               </h2>
             </div>
             <div className="mt-10">
@@ -443,8 +450,8 @@ export default async function HomePage() {
       {/* Final CTA */}
       <CTABlock
         variant="fullwidth"
-        title="Prendre rendez-vous"
-        description="N'hésitez pas à me contacter pour toute question ou pour fixer un rendez-vous."
+        title={(finalCtaContent.title as string) ?? "Prendre rendez-vous"}
+        description={(finalCtaContent.description as string) ?? "N'hésitez pas à me contacter pour toute question ou pour fixer un rendez-vous."}
         phone={phone}
       />
     </>

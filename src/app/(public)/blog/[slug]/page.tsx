@@ -10,6 +10,7 @@ import {
   getBlogPostBySlug,
   getRelatedBlogPosts,
   getSiteSettings,
+  getPageContent,
 } from "@/db/queries";
 import { MarkdownRenderer } from "@/components/public/markdown-renderer";
 import { extractHeadings } from "@/lib/markdown-utils";
@@ -50,14 +51,19 @@ function readingTime(content: string | null): string {
 
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
-  const [post, related, settings] = await Promise.all([
+  const [post, related, settings, blogContent] = await Promise.all([
     getBlogPostBySlug(slug),
     getRelatedBlogPosts(slug, 3),
     getSiteSettings(),
+    getPageContent("/blog"),
   ]);
   if (!post) notFound();
 
   const phone = settings?.phone ?? "+41 77 274 71 44";
+  const authorBio = blogContent?.get("author_bio") ?? {};
+  const authorByline = (authorBio.byline as string) ?? "Physiothérapeute vestibulaire";
+  const authorSubtitle = (authorBio.subtitle as string) ?? "Physiothérapeute spécialisé en rééducation vestibulaire";
+  const authorBioBody = (authorBio.body as string) ?? "Arnaud Canadas accompagne depuis plus de 10 ans les patients souffrant de vertiges et troubles de l'équilibre. Formé aux dernières techniques de diagnostic vestibulaire, il exerce à Morges, Canton de Vaud.";
   const content = post.content ?? "";
   const headings = extractHeadings(content);
 
@@ -178,7 +184,7 @@ export default async function BlogPostPage({ params }: Props) {
                 )}
                 <div>
                   <p className="font-medium text-foreground">{post.author}</p>
-                  <p className="text-xs">Physiothérapeute vestibulaire</p>
+                  <p className="text-xs">{authorByline}</p>
                 </div>
               </div>
               {post.publishedAt && (
@@ -224,15 +230,12 @@ export default async function BlogPostPage({ params }: Props) {
                       {post.author}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      Physiothérapeute spécialisé en rééducation vestibulaire
+                      {authorSubtitle}
                     </p>
                   </div>
                 </div>
                 <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-                  Arnaud Canadas accompagne depuis plus de 10 ans les patients
-                  souffrant de vertiges et troubles de l&apos;équilibre.
-                  Formé aux dernières techniques de diagnostic vestibulaire,
-                  il exerce à Morges, Canton de Vaud.
+                  {authorBioBody}
                 </p>
                 <Link
                   href="/le-physiotherapeute"

@@ -125,6 +125,17 @@ export const getRelatedBlogPosts = cache(async (currentSlug: string, limit = 3) 
     .then(rows => rows.filter(r => r.slug !== currentSlug).slice(0, limit));
 });
 
+export const getPageContent = cache(async (slug: string) => {
+  const page = await getPageBySlug(slug);
+  if (!page) return null;
+  const sections = await getPageSections(page.id);
+  const map = new Map<string, Record<string, unknown>>();
+  for (const s of sections) {
+    map.set(s.type, s.content);
+  }
+  return map;
+});
+
 export const getAllMedia = cache(async () => {
   return db
     .select()

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getPublishedServices, getSiteSettings } from "@/db/queries";
+import { getPublishedServices, getSiteSettings, getPageContent } from "@/db/queries";
 import { ConditionCard } from "@/components/public/condition-card";
 import { CTABlock } from "@/components/public/cta-block";
 
@@ -14,11 +14,21 @@ export const metadata: Metadata = {
 };
 
 export default async function VertigesTraitesPage() {
-  const [services, settings] = await Promise.all([
+  const [services, settings, content] = await Promise.all([
     getPublishedServices(),
     getSiteSettings(),
+    getPageContent("/vertiges-traites"),
   ]);
   const phone = settings?.phone ?? "+41 77 274 71 44";
+
+  const hero = content?.get("conditions_list_hero") ?? {};
+  const eyebrow = (hero.eyebrow as string) ?? "Conditions traitées";
+  const h1 = (hero.h1 as string) ?? "Vertiges traités à Morges";
+  const intro = (hero.intro as string) ?? "Chaque vertige a une cause spécifique et un traitement adapté. Sélectionnez votre condition pour en savoir plus.";
+
+  const cta = content?.get("cta_fullwidth") ?? {};
+  const ctaTitle = (cta.title as string) ?? "Besoin d'un avis ?";
+  const ctaDescription = (cta.description as string) ?? "Contactez Arnaud Canadas pour une évaluation vestibulaire complète à Morges.";
 
   return (
     <>
@@ -33,14 +43,13 @@ export default async function VertigesTraitesPage() {
 
           <div className="mx-auto max-w-3xl text-center">
             <p className="text-sm font-semibold uppercase tracking-wider text-primary">
-              Conditions traitées
+              {eyebrow}
             </p>
             <h1 className="mt-2 font-heading text-3xl font-bold sm:text-4xl lg:text-5xl">
-              Vertiges traités à Morges
+              {h1}
             </h1>
             <p className="mt-4 text-lg text-muted-foreground">
-              Chaque vertige a une cause spécifique et un traitement adapté.
-              Sélectionnez votre condition pour en savoir plus.
+              {intro}
             </p>
           </div>
         </div>
@@ -64,8 +73,8 @@ export default async function VertigesTraitesPage() {
 
       <CTABlock
         variant="fullwidth"
-        title="Besoin d'un avis ?"
-        description="Contactez Arnaud Canadas pour une evaluation vestibulaire complete a Morges."
+        title={ctaTitle}
+        description={ctaDescription}
         phone={phone}
       />
     </>

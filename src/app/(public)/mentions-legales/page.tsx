@@ -1,4 +1,8 @@
 import type { Metadata } from "next";
+import { getPageContent } from "@/db/queries";
+import { MarkdownRenderer } from "@/components/public/markdown-renderer";
+
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "Mentions légales",
@@ -7,7 +11,32 @@ export const metadata: Metadata = {
   robots: { index: false },
 };
 
-export default function MentionsLegalesPage() {
+const defaultBody = `## Éditeur du site
+
+Arnaud Canadas
+Physiothérapeute vestibulaire
+Rue de Couvaloup 16
+1110 Morges, Suisse
+Email\u00a0: info@physio-vertige.ch
+Téléphone\u00a0: +41 77 274 71 44
+
+## Hébergement
+
+Ce site est hébergé par Vercel Inc., 340 S Lemon Ave #4133, Walnut, CA 91789, États-Unis.
+
+## Propriété intellectuelle
+
+L\u2019ensemble du contenu de ce site (textes, images, graphismes, logo, icônes) est la propriété exclusive d\u2019Arnaud Canadas, sauf mention contraire. Toute reproduction, distribution ou utilisation sans autorisation préalable est interdite.
+
+## Responsabilité
+
+Les informations fournies sur ce site sont à titre informatif uniquement et ne constituent pas un avis médical. Consultez toujours un professionnel de santé qualifié pour tout problème médical.`;
+
+export default async function MentionsLegalesPage() {
+  const content = await getPageContent("/mentions-legales");
+  const section = content?.get("markdown_body") ?? {};
+  const body = (section.body as string) ?? defaultBody;
+
   return (
     <section className="py-16 sm:py-24">
       <div className="mx-auto max-w-3xl px-4 sm:px-6">
@@ -17,51 +46,8 @@ export default function MentionsLegalesPage() {
 
         <h1 className="font-heading text-3xl font-bold">Mentions légales</h1>
 
-        <div className="mt-8 space-y-6 text-muted-foreground leading-relaxed">
-          <div>
-            <h2 className="font-heading text-xl font-semibold text-foreground">Éditeur du site</h2>
-            <p className="mt-2">
-              Arnaud Canadas
-              <br />
-              Physiothérapeute vestibulaire
-              <br />
-              Rue de Couvaloup 16
-              <br />
-              1110 Morges, Suisse
-              <br />
-              Email : info@physio-vertige.ch
-              <br />
-              Téléphone : +41 77 274 71 44
-            </p>
-          </div>
-
-          <div>
-            <h2 className="font-heading text-xl font-semibold text-foreground">Hébergement</h2>
-            <p className="mt-2">
-              Ce site est hébergé par Vercel Inc., 340 S Lemon Ave #4133,
-              Walnut, CA 91789, États-Unis.
-            </p>
-          </div>
-
-          <div>
-            <h2 className="font-heading text-xl font-semibold text-foreground">Propriété intellectuelle</h2>
-            <p className="mt-2">
-              L&apos;ensemble du contenu de ce site (textes, images, graphismes,
-              logo, icônes) est la propriété exclusive d&apos;Arnaud Canadas, sauf
-              mention contraire. Toute reproduction, distribution ou utilisation
-              sans autorisation préalable est interdite.
-            </p>
-          </div>
-
-          <div>
-            <h2 className="font-heading text-xl font-semibold text-foreground">Responsabilité</h2>
-            <p className="mt-2">
-              Les informations fournies sur ce site sont à titre informatif
-              uniquement et ne constituent pas un avis médical. Consultez
-              toujours un professionnel de santé qualifié pour tout problème
-              médical.
-            </p>
-          </div>
+        <div className="mt-8">
+          <MarkdownRenderer content={body} />
         </div>
       </div>
     </section>

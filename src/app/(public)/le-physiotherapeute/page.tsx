@@ -3,7 +3,7 @@ import Image from "next/image";
 import { Phone } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { getSiteSettings } from "@/db/queries";
+import { getSiteSettings, getPageContent } from "@/db/queries";
 
 export const revalidate = 60;
 
@@ -43,12 +43,29 @@ function PersonJsonLd() {
 }
 
 export default async function PhysiotherapeutePage() {
-  const settings = await getSiteSettings();
+  const [settings, content] = await Promise.all([
+    getSiteSettings(),
+    getPageContent("/le-physiotherapeute"),
+  ]);
   const phone = settings?.phone ?? "+41 77 274 71 44";
   const aboutImageUrl = settings?.aboutImageUrl;
   const aboutImageAlt =
     settings?.aboutImageAlt ??
     "Arnaud Canadas, physiothérapeute vestibulaire spécialisé à Morges";
+
+  const bio = content?.get("bio") ?? {};
+  const eyebrow = (bio.eyebrow as string) ?? "Le physiothérapeute";
+  const h1 = (bio.h1 as string) ?? "Arnaud Canadas";
+  const subtitle = (bio.subtitle as string) ?? "Physiothérapeute vestibulaire spécialisé";
+  const body = (bio.body as string) ?? "Passionné par la physiothérapie vestibulaire, je me suis spécialisé dans le traitement des vertiges et des troubles de l'équilibre. Mon objectif est d'offrir à chaque patient une prise en charge claire, rassurante et efficace.\n\nAprès ma formation en physiothérapie, j'ai approfondi mes connaissances dans le domaine vestibulaire à travers des formations continues spécialisées, me permettant de maîtriser les techniques les plus récentes de diagnostic et de traitement des pathologies vestibulaires.\n\nJe reçois mes patients au sein du cabinet partagé situé au centre de Morges, dans un environnement calme et adapté à la rééducation vestibulaire.";
+  const qualifications = (bio.qualifications as string[]) ?? [
+    "Diplôme en physiothérapie",
+    "Formation spécialisée en rééducation vestibulaire",
+    "Formation continue en troubles de l'équilibre et vertiges",
+    "Membre de Physioswiss",
+  ];
+
+  const bodyParagraphs = body.split("\n\n").filter(Boolean);
 
   return (
     <>
@@ -79,56 +96,31 @@ export default async function PhysiotherapeutePage() {
 
             <div className={aboutImageUrl ? "lg:col-span-3" : ""}>
               <p className="text-sm font-semibold uppercase tracking-wider text-primary">
-                Le physiothérapeute
+                {eyebrow}
               </p>
               <h1 className="mt-2 font-heading text-3xl font-bold sm:text-4xl">
-                Arnaud Canadas
+                {h1}
               </h1>
               <p className="mt-1 text-lg text-muted-foreground">
-                Physiothérapeute vestibulaire spécialisé
+                {subtitle}
               </p>
 
               <div className="mt-6 space-y-4 text-muted-foreground">
-                <p>
-                  Passionné par la physiothérapie vestibulaire, je me suis
-                  spécialisé dans le traitement des vertiges et des troubles de
-                  l&apos;équilibre. Mon objectif est d&apos;offrir à chaque
-                  patient une prise en charge claire, rassurante et efficace.
-                </p>
-                <p>
-                  Après ma formation en physiothérapie, j&apos;ai approfondi mes
-                  connaissances dans le domaine vestibulaire à travers des
-                  formations continues spécialisées, me permettant de maîtriser
-                  les techniques les plus récentes de diagnostic et de traitement
-                  des pathologies vestibulaires.
-                </p>
-                <p>
-                  Je reçois mes patients au sein du cabinet partagé situé au
-                  centre de Morges, dans un environnement calme et adapté à la
-                  rééducation vestibulaire.
-                </p>
+                {bodyParagraphs.map((p, i) => (
+                  <p key={i}>{p}</p>
+                ))}
               </div>
 
               <h2 className="mt-8 font-heading text-xl font-semibold">
                 Qualifications
               </h2>
               <ul className="mt-3 space-y-2 text-muted-foreground">
-                <li className="flex items-start gap-2">
-                  <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-primary" />
-                  Diplôme en physiothérapie
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-primary" />
-                  Formation spécialisée en rééducation vestibulaire
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-primary" />
-                  Formation continue en troubles de l&apos;équilibre et vertiges
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-primary" />
-                  Membre de Physioswiss
-                </li>
+                {qualifications.map((q, i) => (
+                  <li key={i} className="flex items-start gap-2">
+                    <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-primary" />
+                    {q}
+                  </li>
+                ))}
               </ul>
 
               <a href={`tel:${phone.replace(/\s/g, "")}`} className={cn(buttonVariants({ size: "lg" }), "mt-8")}>

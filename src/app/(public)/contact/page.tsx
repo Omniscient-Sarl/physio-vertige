@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { MapPin, Mail, Phone, Clock } from "lucide-react";
 import { ContactForm } from "@/components/public/contact-form";
-import { getSiteSettings } from "@/db/queries";
+import { getSiteSettings, getPageContent } from "@/db/queries";
 
 export const metadata: Metadata = {
   title: "Contact — Prendre rendez-vous",
@@ -13,7 +13,10 @@ export const metadata: Metadata = {
 export const revalidate = 60;
 
 export default async function ContactPage() {
-  const settings = await getSiteSettings();
+  const [settings, content] = await Promise.all([
+    getSiteSettings(),
+    getPageContent("/contact"),
+  ]);
   const phone = settings?.phone ?? "+41 77 274 71 44";
   const email = settings?.email ?? "info@physio-vertige.ch";
   const address = settings?.address ?? "Rue de Couvaloup 16\n1110 Morges";
@@ -22,6 +25,11 @@ export default async function ContactPage() {
   const openingHoursText = settings?.openingHoursText ?? "Lundi - Vendredi : 08h00 - 19h00\nSur rendez-vous uniquement";
   const googleMapsUrl = settings?.googleMapsUrl ?? "https://maps.google.com/?q=Rue+de+Couvaloup+16+1110+Morges";
   const googleMapsEmbedUrl = settings?.googleMapsEmbedUrl ?? "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2751.5!2d6.498!3d46.511!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sRue+de+Couvaloup+16%2C+1110+Morges!5e0!3m2!1sfr!2sch!4v1";
+
+  const hero = content?.get("contact_hero") ?? {};
+  const eyebrow = (hero.eyebrow as string) ?? "Contact";
+  const h1 = (hero.h1 as string) ?? "Prendre rendez-vous";
+  const intro = (hero.intro as string) ?? "N'hésitez pas à me contacter pour toute question ou pour fixer un rendez-vous. Je vous répondrai dans les meilleurs délais.";
 
   return (
     <section className="py-16 sm:py-24">
@@ -34,14 +42,13 @@ export default async function ContactPage() {
         </nav>
 
         <p className="text-sm font-semibold uppercase tracking-wider text-primary">
-          Contact
+          {eyebrow}
         </p>
         <h1 className="mt-2 font-heading text-3xl font-bold sm:text-4xl">
-          Prendre rendez-vous
+          {h1}
         </h1>
         <p className="mt-4 max-w-2xl text-muted-foreground">
-          N&apos;hésitez pas à me contacter pour toute question ou pour fixer un
-          rendez-vous. Je vous répondrai dans les meilleurs délais.
+          {intro}
         </p>
 
         <div className="mt-12 grid gap-12 lg:grid-cols-5">
