@@ -21,6 +21,7 @@ const settingsSchema = z.object({
   aboutImageAlt: z.string().optional(),
   // Anatomy
   homeAnatomyDiagramUrl: z.string().optional(),
+  homeAnatomyDiagramAlt: z.string().optional(),
   homeAnatomyCaption: z.string().optional(),
   // Contact display
   openingHoursText: z.string().optional(),
@@ -31,6 +32,7 @@ const settingsSchema = z.object({
   footerServiceArea: z.string().optional(),
   // SEO & Google
   defaultOgImageUrl: z.string().optional(),
+  defaultOgImageAlt: z.string().optional(),
   googleVerification: z.string().optional(),
   googleBusinessUrl: z.string().optional(),
   googleReviewCount: z.string().optional(),

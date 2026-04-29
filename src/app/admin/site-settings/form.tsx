@@ -35,9 +35,11 @@ const schema = z.object({
   aboutImageAlt: z.string().optional(),
   // Anatomy
   homeAnatomyDiagramUrl: z.string().optional(),
+  homeAnatomyDiagramAlt: z.string().optional(),
   homeAnatomyCaption: z.string().optional(),
   // SEO & Google
   defaultOgImageUrl: z.string().optional(),
+  defaultOgImageAlt: z.string().optional(),
   googleVerification: z.string().optional(),
   googleBusinessUrl: z.string().optional(),
   googleReviewCount: z.string().optional(),
@@ -72,8 +74,10 @@ export function SiteSettingsForm({ settings }: { settings: Settings }) {
       aboutImageUrl: str("aboutImageUrl"),
       aboutImageAlt: str("aboutImageAlt"),
       homeAnatomyDiagramUrl: str("homeAnatomyDiagramUrl"),
+      homeAnatomyDiagramAlt: str("homeAnatomyDiagramAlt"),
       homeAnatomyCaption: str("homeAnatomyCaption"),
       defaultOgImageUrl: str("defaultOgImageUrl"),
+      defaultOgImageAlt: str("defaultOgImageAlt"),
       googleVerification: str("googleVerification"),
       googleBusinessUrl: str("googleBusinessUrl"),
       googleReviewCount: str("googleReviewCount"),
@@ -244,6 +248,10 @@ export function SiteSettingsForm({ settings }: { settings: Settings }) {
             />
           </div>
           <div>
+            <Label htmlFor="homeAnatomyDiagramAlt">Texte alternatif diagramme</Label>
+            <Input id="homeAnatomyDiagramAlt" {...register("homeAnatomyDiagramAlt")} className="mt-1" />
+          </div>
+          <div>
             <Label htmlFor="homeAnatomyCaption">Legende</Label>
             <Input id="homeAnatomyCaption" {...register("homeAnatomyCaption")} className="mt-1" />
           </div>
@@ -263,6 +271,11 @@ export function SiteSettingsForm({ settings }: { settings: Settings }) {
               onChange={(v) => setValue("defaultOgImageUrl", v)}
               label="OG Image"
             />
+            <p className="mt-1 text-xs text-muted-foreground">1200 x 630 px recommande. Image affichee lors du partage sur les reseaux sociaux.</p>
+          </div>
+          <div>
+            <Label htmlFor="defaultOgImageAlt">Texte alternatif OG</Label>
+            <Input id="defaultOgImageAlt" {...register("defaultOgImageAlt")} className="mt-1" />
           </div>
           <div>
             <Label htmlFor="googleVerification">Google verification</Label>

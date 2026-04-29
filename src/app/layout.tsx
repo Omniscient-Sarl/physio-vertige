@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Fraunces } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
+import { getSiteSettings } from "@/db/queries";
 import "./globals.css";
 
 const inter = Inter({
@@ -15,44 +16,63 @@ const fraunces = Fraunces({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL("https://physio-vertige.ch"),
-  title: {
-    default:
-      "Physio-Vertige — Arnaud Canadas, Physiothérapeute vestibulaire à Morges",
-    template: "%s | Physio-Vertige",
-  },
-  description:
-    "Physiothérapie vestibulaire à Morges. Arnaud Canadas vous accompagne pour traiter vertiges, troubles de l'équilibre et instabilité. VPPB, rééducation vestibulaire.",
-  openGraph: {
-    type: "website",
-    locale: "fr_CH",
-    url: "https://physio-vertige.ch",
-    siteName: "Physio-Vertige",
-    title: "Physio-Vertige — Physiothérapie vestibulaire à Morges",
-    description:
-      "Traitement spécialisé des vertiges et troubles de l'équilibre par Arnaud Canadas, physiothérapeute vestibulaire.",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Physio-Vertige — Physiothérapie vestibulaire à Morges",
-    description:
-      "Traitement spécialisé des vertiges et troubles de l'équilibre par Arnaud Canadas, physiothérapeute vestibulaire.",
-  },
-  verification: {
-    google: "google14c1f8e9a76f78b5",
-  },
-  alternates: {
-    canonical: "https://physio-vertige.ch",
-    languages: {
-      "fr-CH": "https://physio-vertige.ch",
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  const ogImageUrl = settings?.defaultOgImageUrl;
+  const ogImageAlt = settings?.defaultOgImageAlt ?? "Physio-Vertige";
+
+  return {
+    metadataBase: new URL("https://physio-vertige.ch"),
+    title: {
+      default:
+        "Physio-Vertige — Arnaud Canadas, Physiothérapeute vestibulaire à Morges",
+      template: "%s | Physio-Vertige",
     },
-  },
-  robots: {
-    index: true,
-    follow: true,
-  },
-};
+    description:
+      "Physiothérapie vestibulaire à Morges. Arnaud Canadas vous accompagne pour traiter vertiges, troubles de l'équilibre et instabilité. VPPB, rééducation vestibulaire.",
+    openGraph: {
+      type: "website",
+      locale: "fr_CH",
+      url: "https://physio-vertige.ch",
+      siteName: "Physio-Vertige",
+      title: "Physio-Vertige — Physiothérapie vestibulaire à Morges",
+      description:
+        "Traitement spécialisé des vertiges et troubles de l'équilibre par Arnaud Canadas, physiothérapeute vestibulaire.",
+      ...(ogImageUrl
+        ? {
+            images: [
+              {
+                url: ogImageUrl,
+                alt: ogImageAlt,
+                width: 1200,
+                height: 630,
+              },
+            ],
+          }
+        : {}),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "Physio-Vertige — Physiothérapie vestibulaire à Morges",
+      description:
+        "Traitement spécialisé des vertiges et troubles de l'équilibre par Arnaud Canadas, physiothérapeute vestibulaire.",
+      ...(ogImageUrl ? { images: [ogImageUrl] } : {}),
+    },
+    verification: {
+      google: "google14c1f8e9a76f78b5",
+    },
+    alternates: {
+      canonical: "https://physio-vertige.ch",
+      languages: {
+        "fr-CH": "https://physio-vertige.ch",
+      },
+    },
+    robots: {
+      index: true,
+      follow: true,
+    },
+  };
+}
 
 export default function RootLayout({
   children,

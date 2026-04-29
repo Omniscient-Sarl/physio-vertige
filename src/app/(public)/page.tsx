@@ -114,6 +114,9 @@ export default async function HomePage() {
     settings?.homeHeroImageAlt ??
     "Arnaud Canadas, physiothérapeute vestibulaire spécialisé à Morges";
   const anatomyDiagramUrl = settings?.homeAnatomyDiagramUrl;
+  const anatomyDiagramAlt =
+    settings?.homeAnatomyDiagramAlt ??
+    "Labyrinthe membraneux — schéma anatomique du système vestibulaire (vestibule en orange, cochlée en vert)";
   const anatomyCaption =
     settings?.homeAnatomyCaption ??
     "Labyrinthe membraneux — vestibulaire (orange) et cochléaire (vert)";
@@ -266,7 +269,7 @@ export default async function HomePage() {
               <figure className="w-full max-w-sm shrink-0 lg:w-96">
                 <Image
                   src={anatomyDiagramUrl}
-                  alt="Labyrinthe membraneux — schéma anatomique du système vestibulaire (vestibule en orange, cochlée en vert)"
+                  alt={anatomyDiagramAlt}
                   width={800}
                   height={600}
                   sizes="(max-width: 768px) 90vw, 384px"
