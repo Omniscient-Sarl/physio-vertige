@@ -38,6 +38,7 @@ import {
   Trash2,
   ChevronDown,
   ChevronRight,
+  Loader2,
 } from "lucide-react";
 import {
   updatePage,
@@ -67,21 +68,180 @@ type Section = {
   imageUrl: string | null;
 };
 
-const SECTION_TYPES = [
-  { value: "hero", label: "Hero" },
-  { value: "text", label: "Texte" },
-  { value: "image", label: "Image" },
-  { value: "image_text", label: "Image + Texte" },
-  { value: "cta", label: "Appel a l'action (CTA)" },
-  { value: "gallery", label: "Galerie" },
-  { value: "services_grid", label: "Grille de services" },
-  { value: "testimonials_block", label: "Bloc temoignages" },
-  { value: "faq_block", label: "Bloc FAQ" },
-  { value: "anatomy", label: "Anatomie" },
-] as const;
+// --- Section type registry ---
+// Every section type used in the site, with French labels and typed fields.
+type FieldDef = {
+  key: string;
+  label: string;
+  type: "text" | "textarea" | "image" | "array" | "markdown";
+  help?: string;
+  rows?: number;
+  arrayItemFields?: Array<{ key: string; label: string; type: "text" | "textarea" }>;
+};
+
+type SectionTypeDef = {
+  label: string;
+  fields: FieldDef[];
+};
+
+const SECTION_REGISTRY: Record<string, SectionTypeDef> = {
+  hero: {
+    label: "Hero (en-tete principal)",
+    fields: [
+      { key: "h1", label: "Titre principal (H1)", type: "text", help: "Unique sur la page, important pour le SEO. Max ~70 caracteres." },
+      { key: "subhead", label: "Sous-titre", type: "textarea", rows: 3, help: "Sauts de ligne conserves." },
+    ],
+  },
+  conditions_grid: {
+    label: "Grille des conditions",
+    fields: [
+      { key: "eyebrow", label: "Surtitre", type: "text" },
+      { key: "h2", label: "Titre", type: "text" },
+      { key: "body", label: "Texte d'introduction", type: "textarea", rows: 3 },
+    ],
+  },
+  anatomy: {
+    label: "Anatomie (oreille interne)",
+    fields: [
+      { key: "eyebrow", label: "Surtitre", type: "text" },
+      { key: "h2", label: "Titre", type: "text" },
+      { key: "body", label: "Corps", type: "textarea", rows: 6, help: "Separez les paragraphes par une ligne vide." },
+    ],
+  },
+  process_timeline: {
+    label: "Chronologie du traitement",
+    fields: [
+      { key: "eyebrow", label: "Surtitre", type: "text" },
+      { key: "h2", label: "Titre", type: "text" },
+      {
+        key: "steps",
+        label: "Etapes",
+        type: "array",
+        arrayItemFields: [
+          { key: "title", label: "Titre", type: "text" },
+          { key: "description", label: "Description", type: "textarea" },
+        ],
+      },
+    ],
+  },
+  cta_card: {
+    label: "Bloc CTA (carte)",
+    fields: [
+      { key: "title", label: "Titre", type: "text" },
+      { key: "description", label: "Description", type: "textarea", rows: 2 },
+    ],
+  },
+  cta_fullwidth: {
+    label: "Bloc CTA (pleine largeur)",
+    fields: [
+      { key: "title", label: "Titre", type: "text" },
+      { key: "description", label: "Description", type: "textarea", rows: 2 },
+    ],
+  },
+  testimonials: {
+    label: "Section temoignages",
+    fields: [
+      { key: "eyebrow", label: "Surtitre", type: "text" },
+      { key: "h2", label: "Titre", type: "text" },
+    ],
+  },
+  mini_bio: {
+    label: "Mini bio (apercu therapeute)",
+    fields: [
+      { key: "eyebrow", label: "Surtitre", type: "text" },
+      { key: "h2", label: "Nom", type: "text" },
+      { key: "body", label: "Texte de presentation", type: "textarea", rows: 4 },
+    ],
+  },
+  blog_teaser: {
+    label: "Apercu blog",
+    fields: [
+      { key: "eyebrow", label: "Surtitre", type: "text" },
+      { key: "h2", label: "Titre", type: "text" },
+    ],
+  },
+  faq: {
+    label: "Section FAQ",
+    fields: [
+      { key: "eyebrow", label: "Surtitre", type: "text" },
+      { key: "h2", label: "Titre", type: "text" },
+    ],
+  },
+  bio: {
+    label: "Biographie complete",
+    fields: [
+      { key: "eyebrow", label: "Surtitre", type: "text" },
+      { key: "h1", label: "Nom (H1)", type: "text" },
+      { key: "subtitle", label: "Sous-titre", type: "text" },
+      { key: "body", label: "Texte biographique", type: "textarea", rows: 8, help: "Separez les paragraphes par une ligne vide." },
+      {
+        key: "qualifications",
+        label: "Qualifications",
+        type: "array",
+        arrayItemFields: [
+          { key: "value", label: "Qualification", type: "text" },
+        ],
+      },
+    ],
+  },
+  contact_hero: {
+    label: "En-tete contact",
+    fields: [
+      { key: "eyebrow", label: "Surtitre", type: "text" },
+      { key: "h1", label: "Titre (H1)", type: "text" },
+      { key: "intro", label: "Texte d'introduction", type: "textarea", rows: 3 },
+    ],
+  },
+  cabinet: {
+    label: "Presentation du cabinet",
+    fields: [
+      { key: "eyebrow", label: "Surtitre", type: "text" },
+      { key: "h1", label: "Titre (H1)", type: "text" },
+      { key: "body", label: "Description", type: "textarea", rows: 6, help: "Separez les paragraphes par une ligne vide." },
+      { key: "linkTitle", label: "Titre du lien externe", type: "text" },
+      { key: "linkUrl", label: "URL du lien externe", type: "text", help: "Laissez vide si pas encore disponible." },
+    ],
+  },
+  conditions_list_hero: {
+    label: "En-tete liste des conditions",
+    fields: [
+      { key: "eyebrow", label: "Surtitre", type: "text" },
+      { key: "h1", label: "Titre (H1)", type: "text" },
+      { key: "intro", label: "Texte d'introduction", type: "textarea", rows: 3 },
+    ],
+  },
+  blog_list_hero: {
+    label: "En-tete liste du blog",
+    fields: [
+      { key: "eyebrow", label: "Surtitre", type: "text" },
+      { key: "h1", label: "Titre (H1)", type: "text" },
+      { key: "intro", label: "Texte d'introduction", type: "textarea", rows: 3 },
+    ],
+  },
+  author_bio: {
+    label: "Bio auteur (articles de blog)",
+    fields: [
+      { key: "byline", label: "Fonction courte", type: "text", help: "Ex: Physiotherapeute vestibulaire" },
+      { key: "subtitle", label: "Titre complet", type: "text" },
+      { key: "body", label: "Biographie courte", type: "textarea", rows: 4 },
+    ],
+  },
+  markdown_body: {
+    label: "Contenu Markdown (page legale)",
+    fields: [
+      { key: "body", label: "Contenu (Markdown)", type: "markdown", rows: 20, help: "Utilisez ## pour les titres, **gras**, *italique*." },
+    ],
+  },
+};
+
+// Build SECTION_TYPES for the dropdown from the registry
+const SECTION_TYPES = Object.entries(SECTION_REGISTRY).map(([value, def]) => ({
+  value,
+  label: def.label,
+}));
 
 function sectionTypeLabel(type: string): string {
-  return SECTION_TYPES.find((t) => t.value === type)?.label ?? type;
+  return SECTION_REGISTRY[type]?.label ?? type;
 }
 
 // --- Page meta form schema ---
@@ -94,6 +254,98 @@ const pageSchema = z.object({
   status: z.enum(["draft", "published"]),
 });
 
+// --- Character count indicator ---
+function CharCount({ value, warn, max }: { value: string; warn: number; max: number }) {
+  const len = value.length;
+  const color = len > max ? "text-destructive" : len > warn ? "text-yellow-600" : "text-muted-foreground";
+  return (
+    <span className={`text-xs ${color}`}>
+      {len}/{max}
+    </span>
+  );
+}
+
+// --- Array field editor ---
+function ArrayFieldEditor({
+  value,
+  onChange,
+  itemFields,
+}: {
+  value: unknown[];
+  onChange: (v: unknown[]) => void;
+  itemFields: Array<{ key: string; label: string; type: "text" | "textarea" }>;
+}) {
+  // For simple arrays (single "value" field like qualifications), items are strings
+  const isSimple = itemFields.length === 1 && itemFields[0].key === "value";
+
+  function addItem() {
+    if (isSimple) {
+      onChange([...value, ""]);
+    } else {
+      const empty: Record<string, string> = {};
+      for (const f of itemFields) empty[f.key] = "";
+      onChange([...value, empty]);
+    }
+  }
+
+  function removeItem(idx: number) {
+    onChange(value.filter((_, i) => i !== idx));
+  }
+
+  function updateItem(idx: number, updated: unknown) {
+    onChange(value.map((v, i) => (i === idx ? updated : v)));
+  }
+
+  return (
+    <div className="space-y-2">
+      {value.map((item, idx) => (
+        <div key={idx} className="flex items-start gap-2 rounded-lg border bg-muted/30 p-3">
+          <span className="mt-2 text-xs font-medium text-muted-foreground">{idx + 1}.</span>
+          <div className="flex-1 space-y-2">
+            {isSimple ? (
+              <Input
+                value={String(item ?? "")}
+                onChange={(e) => updateItem(idx, e.target.value)}
+              />
+            ) : (
+              itemFields.map((f) => (
+                <div key={f.key}>
+                  <Label className="text-xs">{f.label}</Label>
+                  {f.type === "textarea" ? (
+                    <Textarea
+                      value={String((item as Record<string, unknown>)?.[f.key] ?? "")}
+                      onChange={(e) =>
+                        updateItem(idx, { ...(item as Record<string, unknown>), [f.key]: e.target.value })
+                      }
+                      className="mt-1 text-sm"
+                      rows={2}
+                    />
+                  ) : (
+                    <Input
+                      value={String((item as Record<string, unknown>)?.[f.key] ?? "")}
+                      onChange={(e) =>
+                        updateItem(idx, { ...(item as Record<string, unknown>), [f.key]: e.target.value })
+                      }
+                      className="mt-1"
+                    />
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+          <Button variant="ghost" size="icon" className="mt-1 shrink-0" onClick={() => removeItem(idx)}>
+            <Trash2 className="h-3.5 w-3.5 text-destructive" />
+          </Button>
+        </div>
+      ))}
+      <Button variant="outline" size="sm" onClick={addItem}>
+        <Plus className="mr-1 h-3.5 w-3.5" />
+        Ajouter
+      </Button>
+    </div>
+  );
+}
+
 // --- Section form for each type ---
 function SectionForm({
   section,
@@ -104,8 +356,7 @@ function SectionForm({
   onSave: (content: Record<string, unknown>, imageUrl: string | null) => void;
   saving: boolean;
 }) {
-  const c = section.content;
-  const [content, setContent] = useState<Record<string, unknown>>(c);
+  const [content, setContent] = useState<Record<string, unknown>>(section.content);
   const [imageUrl, setImageUrl] = useState(section.imageUrl ?? "");
 
   function set(key: string, value: unknown) {
@@ -113,177 +364,92 @@ function SectionForm({
   }
 
   const str = (key: string) => (content[key] as string) ?? "";
+  const arr = (key: string) => (content[key] as unknown[]) ?? [];
 
-  const fields: Record<string, React.ReactNode> = {
-    hero: (
-      <>
-        <Field label="Surtitre" value={str("eyebrow")} onChange={(v) => set("eyebrow", v)} />
-        <Field label="Titre (H1)" value={str("h1")} onChange={(v) => set("h1", v)} />
-        <Field label="Sous-titre" value={str("subtitle")} onChange={(v) => set("subtitle", v)} />
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Texte CTA" value={str("ctaLabel")} onChange={(v) => set("ctaLabel", v)} />
-          <Field label="URL CTA" value={str("ctaUrl")} onChange={(v) => set("ctaUrl", v)} />
-        </div>
+  const def = SECTION_REGISTRY[section.type];
+
+  if (!def) {
+    // Fallback: generic JSON editor
+    return (
+      <div className="space-y-3">
+        <p className="text-xs text-yellow-600">
+          Type de section non reconnu : &quot;{section.type}&quot;. Edition JSON brut.
+        </p>
         <div>
-          <Label>Image hero</Label>
-          <ImagePicker value={imageUrl} onChange={setImageUrl} label="Hero" />
+          <Label>Contenu (JSON)</Label>
+          <Textarea
+            value={JSON.stringify(content, null, 2)}
+            onChange={(e) => {
+              try { setContent(JSON.parse(e.target.value)); } catch { /* ignore */ }
+            }}
+            className="mt-1 font-mono text-sm"
+            rows={8}
+          />
         </div>
-      </>
-    ),
-    text: (
-      <>
-        <Field label="Titre" value={str("title")} onChange={(v) => set("title", v)} />
-        <FieldTextarea label="Contenu (Markdown)" value={str("body")} onChange={(v) => set("body", v)} rows={8} />
-      </>
-    ),
-    image: (
-      <>
-        <div>
-          <Label>Image</Label>
-          <ImagePicker value={imageUrl} onChange={setImageUrl} label="Image" />
-        </div>
-        <Field label="Texte alternatif" value={str("alt")} onChange={(v) => set("alt", v)} />
-        <Field label="Legende" value={str("caption")} onChange={(v) => set("caption", v)} />
-      </>
-    ),
-    image_text: (
-      <>
-        <Field label="Titre" value={str("title")} onChange={(v) => set("title", v)} />
-        <FieldTextarea label="Contenu (Markdown)" value={str("body")} onChange={(v) => set("body", v)} rows={6} />
-        <div>
-          <Label>Image</Label>
-          <ImagePicker value={imageUrl} onChange={setImageUrl} label="Image" />
-        </div>
-        <Field label="Texte alternatif" value={str("alt")} onChange={(v) => set("alt", v)} />
-        <div>
-          <Label>Position image</Label>
-          <select
-            value={str("imagePosition") || "right"}
-            onChange={(e) => set("imagePosition", e.target.value)}
-            className="mt-1 flex h-8 w-full rounded-lg border bg-background px-2.5 text-sm"
-          >
-            <option value="left">Gauche</option>
-            <option value="right">Droite</option>
-          </select>
-        </div>
-      </>
-    ),
-    cta: (
-      <>
-        <Field label="Titre" value={str("title")} onChange={(v) => set("title", v)} />
-        <Field label="Description" value={str("description")} onChange={(v) => set("description", v)} />
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Texte bouton principal" value={str("primaryLabel")} onChange={(v) => set("primaryLabel", v)} />
-          <Field label="URL bouton principal" value={str("primaryUrl")} onChange={(v) => set("primaryUrl", v)} />
-        </div>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Texte bouton secondaire" value={str("secondaryLabel")} onChange={(v) => set("secondaryLabel", v)} />
-          <Field label="URL bouton secondaire" value={str("secondaryUrl")} onChange={(v) => set("secondaryUrl", v)} />
-        </div>
-      </>
-    ),
-    gallery: (
-      <>
-        <Field label="Titre" value={str("title")} onChange={(v) => set("title", v)} />
-        <FieldTextarea
-          label="URLs images (une par ligne)"
-          value={str("images")}
-          onChange={(v) => set("images", v)}
-          rows={4}
-        />
-      </>
-    ),
-    services_grid: (
-      <>
-        <Field label="Titre" value={str("title")} onChange={(v) => set("title", v)} />
-        <Field label="Description" value={str("description")} onChange={(v) => set("description", v)} />
-      </>
-    ),
-    testimonials_block: (
-      <>
-        <Field label="Titre" value={str("title")} onChange={(v) => set("title", v)} />
-      </>
-    ),
-    faq_block: (
-      <>
-        <Field label="Titre" value={str("title")} onChange={(v) => set("title", v)} />
-        <Field label="Categorie (filtre)" value={str("category")} onChange={(v) => set("category", v)} />
-      </>
-    ),
-    anatomy: (
-      <>
-        <Field label="Surtitre" value={str("eyebrow")} onChange={(v) => set("eyebrow", v)} />
-        <Field label="Titre (H2)" value={str("h2")} onChange={(v) => set("h2", v)} />
-        <FieldTextarea label="Corps" value={str("body")} onChange={(v) => set("body", v)} rows={4} />
-        <div>
-          <Label>Diagramme</Label>
-          <ImagePicker value={imageUrl} onChange={setImageUrl} label="Diagramme" />
-        </div>
-        <Field label="Legende" value={str("caption")} onChange={(v) => set("caption", v)} />
-      </>
-    ),
-  };
+        <Button size="sm" disabled={saving} onClick={() => onSave(content, imageUrl || null)}>
+          {saving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Enregistrement...</> : "Enregistrer la section"}
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-3">
-      {fields[section.type] ?? (
-        <FieldTextarea
-          label="Contenu (JSON)"
-          value={JSON.stringify(content, null, 2)}
-          onChange={(v) => {
-            try { setContent(JSON.parse(v)); } catch { /* ignore */ }
-          }}
-          rows={6}
-        />
-      )}
-      <Button
-        size="sm"
-        disabled={saving}
-        onClick={() => onSave(content, imageUrl || null)}
-      >
-        {saving ? "Enregistrement..." : "Enregistrer la section"}
+      {def.fields.map((field) => {
+        if (field.type === "text") {
+          return (
+            <div key={field.key}>
+              <div className="flex items-center justify-between">
+                <Label>{field.label}</Label>
+                {field.key === "h1" && <CharCount value={str(field.key)} warn={55} max={70} />}
+              </div>
+              <Input value={str(field.key)} onChange={(e) => set(field.key, e.target.value)} className="mt-1" />
+              {field.help && <p className="mt-1 text-xs text-muted-foreground">{field.help}</p>}
+            </div>
+          );
+        }
+        if (field.type === "textarea" || field.type === "markdown") {
+          return (
+            <div key={field.key}>
+              <Label>{field.label}</Label>
+              <Textarea
+                value={str(field.key)}
+                onChange={(e) => set(field.key, e.target.value)}
+                className={`mt-1 ${field.type === "markdown" ? "font-mono text-sm" : ""}`}
+                rows={field.rows ?? 4}
+              />
+              {field.help && <p className="mt-1 text-xs text-muted-foreground">{field.help}</p>}
+            </div>
+          );
+        }
+        if (field.type === "image") {
+          return (
+            <div key={field.key}>
+              <Label>{field.label}</Label>
+              <ImagePicker value={imageUrl} onChange={setImageUrl} label={field.label} />
+              {field.help && <p className="mt-1 text-xs text-muted-foreground">{field.help}</p>}
+            </div>
+          );
+        }
+        if (field.type === "array" && field.arrayItemFields) {
+          return (
+            <div key={field.key}>
+              <Label>{field.label}</Label>
+              <div className="mt-1">
+                <ArrayFieldEditor
+                  value={arr(field.key)}
+                  onChange={(v) => set(field.key, v)}
+                  itemFields={field.arrayItemFields}
+                />
+              </div>
+            </div>
+          );
+        }
+        return null;
+      })}
+      <Button size="sm" disabled={saving} onClick={() => onSave(content, imageUrl || null)}>
+        {saving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Enregistrement...</> : "Enregistrer la section"}
       </Button>
-    </div>
-  );
-}
-
-function Field({
-  label,
-  value,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-}) {
-  return (
-    <div>
-      <Label>{label}</Label>
-      <Input value={value} onChange={(e) => onChange(e.target.value)} className="mt-1" />
-    </div>
-  );
-}
-
-function FieldTextarea({
-  label,
-  value,
-  onChange,
-  rows = 4,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  rows?: number;
-}) {
-  return (
-    <div>
-      <Label>{label}</Label>
-      <Textarea
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="mt-1 font-mono text-sm"
-        rows={rows}
-      />
     </div>
   );
 }
@@ -322,8 +488,8 @@ function SortableSectionCard({
       content,
       imageUrl,
     });
-    if (result.success) toast.success("Section enregistree");
-    else toast.error(result.error ?? "Erreur");
+    if (result.success) toast.success("Modifications enregistrees");
+    else toast.error(result.error ?? "Erreur lors de l'enregistrement");
     setSaving(false);
   }
 
@@ -391,6 +557,7 @@ export function PageEditor({
   const router = useRouter();
   const [sections, setSections] = useState(initialSections);
   const [pagePending, setPagePending] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [addingType, setAddingType] = useState("");
 
   const sensors = useSensors(
@@ -418,12 +585,21 @@ export function PageEditor({
   });
 
   const ogImageUrl = watch("ogImageUrl");
+  const metaTitle = watch("metaTitle") ?? "";
+  const metaDescription = watch("metaDescription") ?? "";
+
+  // Build the public URL for "Voir cette page"
+  const publicUrl = page.slug === "/" || page.slug === "" ? "/" : `/${page.slug}`;
 
   async function onSubmitPage(data: z.infer<typeof pageSchema>) {
     setPagePending(true);
     const result = await updatePage(page.id, data);
-    if (result.success) toast.success("Page mise a jour");
-    else toast.error(result.error ?? "Erreur");
+    if (result.success) {
+      toast.success("Modifications enregistrees");
+      setLastSaved(new Date());
+    } else {
+      toast.error(result.error ?? "Erreur lors de l'enregistrement");
+    }
     setPagePending(false);
   }
 
@@ -491,9 +667,10 @@ export function PageEditor({
       setSections((prev) =>
         prev.map((s) => (s.id === id ? { ...s, content, imageUrl } : s))
       );
-      toast.success("Section enregistree");
+      toast.success("Modifications enregistrees");
+      setLastSaved(new Date());
     } else {
-      toast.error(result.error ?? "Erreur");
+      toast.error(result.error ?? "Erreur lors de l'enregistrement");
     }
   }
 
@@ -508,16 +685,23 @@ export function PageEditor({
         </Link>
         <div className="flex-1">
           <h1 className="font-heading text-2xl font-bold">{page.title}</h1>
-          <p className="text-sm text-muted-foreground">/{page.slug}</p>
+          <div className="flex items-center gap-3 text-sm text-muted-foreground">
+            <span>{publicUrl}</span>
+            {lastSaved && (
+              <span>
+                Derniere sauvegarde : {lastSaved.toLocaleTimeString("fr-CH")}
+              </span>
+            )}
+          </div>
         </div>
         <a
-          href={`/${page.slug}`}
+          href={publicUrl}
           target="_blank"
           rel="noopener noreferrer"
         >
           <Button variant="outline" size="sm">
             <ExternalLink className="mr-2 h-4 w-4" />
-            Voir sur le site
+            Voir cette page sur le site
           </Button>
         </a>
       </div>
@@ -540,12 +724,24 @@ export function PageEditor({
               </div>
             </div>
             <div>
-              <Label>Meta titre</Label>
+              <div className="flex items-center justify-between">
+                <Label>Meta titre</Label>
+                <CharCount value={metaTitle} warn={55} max={60} />
+              </div>
               <Input {...register("metaTitle")} className="mt-1" />
+              <p className="mt-1 text-xs text-muted-foreground">
+                Apparait dans l&apos;onglet du navigateur et les resultats Google.
+              </p>
             </div>
             <div>
-              <Label>Meta description</Label>
+              <div className="flex items-center justify-between">
+                <Label>Meta description</Label>
+                <CharCount value={metaDescription} warn={145} max={155} />
+              </div>
               <Textarea {...register("metaDescription")} className="mt-1" rows={2} />
+              <p className="mt-1 text-xs text-muted-foreground">
+                Texte affiche sous le titre dans les resultats Google.
+              </p>
             </div>
             <div>
               <Label>Image OG</Label>
@@ -554,6 +750,9 @@ export function PageEditor({
                 onChange={(v) => setValue("ogImageUrl", v)}
                 label="OG Image"
               />
+              <p className="mt-1 text-xs text-muted-foreground">
+                1200 x 630 px recommande. Apparait lors du partage sur les reseaux sociaux.
+              </p>
             </div>
             <div>
               <Label>Statut</Label>
@@ -566,7 +765,11 @@ export function PageEditor({
               </select>
             </div>
             <Button type="submit" disabled={pagePending}>
-              {pagePending ? "Enregistrement..." : "Enregistrer les metadonnees"}
+              {pagePending ? (
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Enregistrement...</>
+              ) : (
+                "Enregistrer les metadonnees"
+              )}
             </Button>
           </form>
         </CardContent>
@@ -575,7 +778,12 @@ export function PageEditor({
       {/* Sections editor */}
       <Card>
         <CardHeader>
-          <CardTitle>Sections</CardTitle>
+          <CardTitle>
+            Sections
+            <span className="ml-2 text-sm font-normal text-muted-foreground">
+              ({sections.length} section{sections.length !== 1 ? "s" : ""})
+            </span>
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <DndContext
