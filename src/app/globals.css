@@ -123,44 +123,46 @@
   }
 }
 
-/* Prose styling for blog articles */
-.prose-article {
-  @apply text-foreground leading-relaxed;
-}
-.prose-article h2 {
-  @apply mt-12 mb-4 font-heading text-2xl font-bold text-foreground;
-}
-.prose-article h3 {
-  @apply mt-8 mb-3 font-heading text-xl font-semibold text-foreground;
-}
-.prose-article p {
-  @apply mb-5 leading-[1.8];
-}
-.prose-article ul,
-.prose-article ol {
-  @apply mb-5 ml-6 space-y-2;
-}
-.prose-article ul {
-  @apply list-disc;
-}
-.prose-article ol {
-  @apply list-decimal;
-}
-.prose-article li {
-  @apply leading-relaxed;
-}
-.prose-article blockquote {
-  @apply my-6 border-l-4 border-primary/30 pl-6 italic text-muted-foreground;
-}
-.prose-article strong {
-  @apply font-semibold text-foreground;
-}
-.prose-article a {
-  @apply text-primary underline underline-offset-2 hover:text-primary/80;
-}
-.prose-article img {
-  @apply my-8 rounded-xl;
-}
-.prose-article hr {
-  @apply my-10 border-border;
+/* Prose styling for blog articles — in @layer base so utility classes can override */
+@layer base {
+  .prose-article {
+    @apply text-foreground leading-relaxed;
+  }
+  .prose-article h2 {
+    @apply mt-12 mb-4 font-heading text-2xl font-bold text-foreground;
+  }
+  .prose-article h3 {
+    @apply mt-8 mb-3 font-heading text-xl font-semibold text-foreground;
+  }
+  .prose-article p {
+    @apply mb-5 leading-[1.8];
+  }
+  .prose-article ul,
+  .prose-article ol {
+    @apply mb-5 ml-6 space-y-2;
+  }
+  .prose-article ul {
+    @apply list-disc;
+  }
+  .prose-article ol {
+    @apply list-decimal;
+  }
+  .prose-article li {
+    @apply leading-relaxed;
+  }
+  .prose-article blockquote {
+    @apply my-6 border-l-4 border-primary/30 pl-6 italic text-muted-foreground;
+  }
+  .prose-article strong {
+    @apply font-semibold text-foreground;
+  }
+  .prose-article a {
+    @apply text-primary underline underline-offset-2 hover:text-primary/80;
+  }
+  .prose-article img {
+    @apply my-8 rounded-xl;
+  }
+  .prose-article hr {
+    @apply my-10 border-border;
+  }
 }
