@@ -153,16 +153,16 @@ export default async function HomePage() {
             </div>
             {/* Right: portrait */}
             {heroImageUrl && (
-              <div className="relative w-64 shrink-0 sm:w-72 lg:w-80">
-                <div className="aspect-[3/4] overflow-hidden rounded-2xl shadow-xl">
+              <div className="relative w-72 shrink-0 sm:w-80 lg:w-96">
+                <div className="aspect-[16/9] overflow-hidden rounded-2xl shadow-xl">
                   <Image
                     src={heroImageUrl}
-                    alt="Arnaud Canadas, physiothérapeute vestibulaire à Morges"
-                    width={640}
-                    height={853}
+                    alt="Illustration de l'oreille interne — système vestibulaire et cochléaire"
+                    width={1280}
+                    height={720}
                     priority
                     fetchPriority="high"
-                    sizes="(max-width: 768px) 80vw, 320px"
+                    sizes="(max-width: 768px) 80vw, 384px"
                     className="h-full w-full object-cover"
                   />
                 </div>

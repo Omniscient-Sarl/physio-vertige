@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { Phone } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -52,20 +51,8 @@ export default function PhysiotherapeutePage() {
             / <span>Le physiothérapeute</span>
           </nav>
 
-          <div className="grid gap-10 lg:grid-cols-5">
-            <div className="lg:col-span-2">
-              <div className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-muted">
-                <Image
-                  src="/images/hero-vestibular-system.jpg"
-                  alt="Arnaud Canadas, physiothérapeute vestibulaire"
-                  fill
-                  sizes="(max-width: 768px) 100vw, 320px"
-                  className="object-cover"
-                />
-              </div>
-            </div>
-
-            <div className="lg:col-span-3">
+          <div className="mx-auto max-w-2xl">
+            <div>
               <p className="text-sm font-semibold uppercase tracking-wider text-primary">
                 Le physiothérapeute
               </p>
