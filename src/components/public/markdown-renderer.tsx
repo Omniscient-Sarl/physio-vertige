@@ -29,6 +29,7 @@ export function MarkdownRenderer({ content }: { content: string }) {
     <div className="prose-article">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
+        children={content}
         components={{
           h2: ({ children }) => {
             const text = String(children);
