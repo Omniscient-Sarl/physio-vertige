@@ -291,6 +291,7 @@ export default async function HomePage() {
           <CTABlock
             title="Prêt à retrouver votre équilibre ?"
             description="Un bilan vestibulaire permet d'identifier la cause de vos vertiges et de commencer le traitement adapté dès la première séance."
+            phone={phone}
           />
         </div>
       </section>
@@ -444,6 +445,7 @@ export default async function HomePage() {
         variant="fullwidth"
         title="Prendre rendez-vous"
         description="N'hésitez pas à me contacter pour toute question ou pour fixer un rendez-vous."
+        phone={phone}
       />
     </>
   );

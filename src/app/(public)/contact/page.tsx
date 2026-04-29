@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { MapPin, Mail, Phone, Clock } from "lucide-react";
 import { ContactForm } from "@/components/public/contact-form";
+import { getSiteSettings } from "@/db/queries";
 
 export const metadata: Metadata = {
   title: "Contact — Prendre rendez-vous",
@@ -9,7 +10,19 @@ export const metadata: Metadata = {
   alternates: { canonical: "https://physio-vertige.ch/contact" },
 };
 
-export default function ContactPage() {
+export const revalidate = 60;
+
+export default async function ContactPage() {
+  const settings = await getSiteSettings();
+  const phone = settings?.phone ?? "+41 77 274 71 44";
+  const email = settings?.email ?? "info@physio-vertige.ch";
+  const address = settings?.address ?? "Rue de Couvaloup 16\n1110 Morges";
+  const addressLines = address.split("\n").filter(Boolean);
+  const phoneTel = `tel:${phone.replace(/\s/g, "")}`;
+  const openingHoursText = settings?.openingHoursText ?? "Lundi - Vendredi : 08h00 - 19h00\nSur rendez-vous uniquement";
+  const googleMapsUrl = settings?.googleMapsUrl ?? "https://maps.google.com/?q=Rue+de+Couvaloup+16+1110+Morges";
+  const googleMapsEmbedUrl = settings?.googleMapsEmbedUrl ?? "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2751.5!2d6.498!3d46.511!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sRue+de+Couvaloup+16%2C+1110+Morges!5e0!3m2!1sfr!2sch!4v1";
+
   return (
     <section className="py-16 sm:py-24">
       <div className="mx-auto max-w-5xl px-4 sm:px-6">
@@ -43,14 +56,14 @@ export default function ContactPage() {
                 <div>
                   <p className="font-semibold">Adresse</p>
                   <a
-                    href="https://maps.google.com/?q=Rue+de+Couvaloup+16+1110+Morges"
+                    href={googleMapsUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-sm text-muted-foreground hover:text-foreground"
                   >
-                    Rue de Couvaloup 16
-                    <br />
-                    1110 Morges
+                    {addressLines.map((line, i) => (
+                      <span key={i}>{i > 0 && <br />}{line}</span>
+                    ))}
                   </a>
                 </div>
               </div>
@@ -58,12 +71,12 @@ export default function ContactPage() {
               <div className="flex items-start gap-3">
                 <Phone className="mt-1 h-5 w-5 shrink-0 text-primary" />
                 <div>
-                  <p className="font-semibold">Téléphone</p>
+                  <p className="font-semibold">Telephone</p>
                   <a
-                    href="tel:+41772747144"
+                    href={phoneTel}
                     className="text-sm text-muted-foreground hover:text-foreground"
                   >
-                    +41 77 274 71 44
+                    {phone}
                   </a>
                 </div>
               </div>
@@ -73,10 +86,10 @@ export default function ContactPage() {
                 <div>
                   <p className="font-semibold">Email</p>
                   <a
-                    href="mailto:info@physio-vertige.ch"
+                    href={`mailto:${email}`}
                     className="text-sm text-muted-foreground hover:text-foreground"
                   >
-                    info@physio-vertige.ch
+                    {email}
                   </a>
                 </div>
               </div>
@@ -85,10 +98,8 @@ export default function ContactPage() {
                 <Clock className="mt-1 h-5 w-5 shrink-0 text-primary" />
                 <div>
                   <p className="font-semibold">Horaires</p>
-                  <p className="text-sm text-muted-foreground">
-                    Lundi - Vendredi : 08h00 - 19h00
-                    <br />
-                    Sur rendez-vous uniquement
+                  <p className="text-sm text-muted-foreground whitespace-pre-line">
+                    {openingHoursText}
                   </p>
                 </div>
               </div>
@@ -97,7 +108,7 @@ export default function ContactPage() {
             <div className="mt-8 overflow-hidden rounded-lg border">
               <iframe
                 title="Cabinet Physio-Vertige Morges"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2751.5!2d6.498!3d46.511!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sRue+de+Couvaloup+16%2C+1110+Morges!5e0!3m2!1sfr!2sch!4v1"
+                src={googleMapsEmbedUrl}
                 width="100%"
                 height="250"
                 style={{ border: 0 }}

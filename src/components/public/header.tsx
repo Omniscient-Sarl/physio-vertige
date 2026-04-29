@@ -8,26 +8,23 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
-const conditions = [
-  { slug: "vppb", label: "VPPB (vertige positionnel)" },
-  { slug: "nevrite-vestibulaire", label: "Névrite vestibulaire" },
-  { slug: "maladie-de-meniere", label: "Maladie de Ménière" },
-  { slug: "migraine-vestibulaire", label: "Migraine vestibulaire" },
-  { slug: "vertige-cervicogenique", label: "Vertige cervicogénique" },
-  { slug: "deficit-vestibulaire", label: "Déficit vestibulaire" },
-  { slug: "mal-de-debarquement", label: "Mal de débarquement" },
-  { slug: "vertige-post-commotion", label: "Vertige post-commotion" },
-];
+type Service = { slug: string; title: string };
+
+type Props = {
+  phone: string;
+  services: Service[];
+};
 
 const navLinks = [
-  { href: "/le-physiotherapeute", label: "Le physiothérapeute" },
+  { href: "/le-physiotherapeute", label: "Le physiotherapeute" },
   { href: "/blog", label: "Blog" },
   { href: "/contact", label: "Contact" },
 ];
 
-export function Header() {
+export function Header({ phone, services }: Props) {
   const [open, setOpen] = useState(false);
   const [megaOpen, setMegaOpen] = useState(false);
+  const phoneTel = `tel:${phone.replace(/\s/g, "")}`;
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
@@ -43,7 +40,7 @@ export function Header() {
           className="hidden items-center gap-1 md:flex"
           aria-label="Navigation principale"
         >
-          {/* Mega-menu: Vertiges traités */}
+          {/* Mega-menu: Vertiges traites */}
           <div
             className="relative"
             onMouseEnter={() => setMegaOpen(true)}
@@ -53,21 +50,21 @@ export function Header() {
               href="/vertiges-traites"
               className="flex items-center gap-1 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
-              Vertiges traités
+              Vertiges traites
               <ChevronDown className="h-3.5 w-3.5" />
             </Link>
             {megaOpen && (
               <div className="absolute left-1/2 top-full z-50 w-[520px] -translate-x-1/2 pt-2">
                 <div className="rounded-xl border border-border/60 bg-card p-5 shadow-lg">
                   <div className="grid grid-cols-2 gap-1">
-                    {conditions.map((c) => (
+                    {services.map((c) => (
                       <Link
                         key={c.slug}
                         href={`/vertiges-traites/${c.slug}`}
                         className="rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                         onClick={() => setMegaOpen(false)}
                       >
-                        {c.label}
+                        {c.title}
                       </Link>
                     ))}
                   </div>
@@ -97,7 +94,7 @@ export function Header() {
           ))}
 
           <a
-            href="tel:+41772747144"
+            href={phoneTel}
             className={cn(buttonVariants({ size: "sm" }), "ml-3")}
           >
             <Phone className="mr-2 h-4 w-4" />
@@ -134,16 +131,16 @@ export function Header() {
           <SheetContent side="right" className="w-80 overflow-y-auto">
             <nav className="mt-8 flex flex-col gap-1">
               <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Vertiges traités
+                Vertiges traites
               </p>
-              {conditions.map((c) => (
+              {services.map((c) => (
                 <Link
                   key={c.slug}
                   href={`/vertiges-traites/${c.slug}`}
                   onClick={() => setOpen(false)}
                   className="rounded-lg px-3 py-2 text-sm text-foreground hover:bg-accent"
                 >
-                  {c.label}
+                  {c.title}
                 </Link>
               ))}
 
@@ -161,7 +158,7 @@ export function Header() {
               ))}
 
               <a
-                href="tel:+41772747144"
+                href={phoneTel}
                 className={cn(buttonVariants(), "mt-6")}
               >
                 <Phone className="mr-2 h-4 w-4" />

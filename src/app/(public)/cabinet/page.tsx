@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { MapPin, Phone } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { getSiteSettings } from "@/db/queries";
 
 export const metadata: Metadata = {
   title: "Cabinet partagé — Morges",
@@ -10,7 +11,15 @@ export const metadata: Metadata = {
   alternates: { canonical: "https://physio-vertige.ch/cabinet" },
 };
 
-export default function CabinetPage() {
+export const revalidate = 60;
+
+export default async function CabinetPage() {
+  const settings = await getSiteSettings();
+  const phone = settings?.phone ?? "+41 77 274 71 44";
+  const address = settings?.address ?? "Rue de Couvaloup 16\n1110 Morges";
+  const googleMapsUrl = settings?.googleMapsUrl ?? "https://maps.google.com/?q=Rue+de+Couvaloup+16+1110+Morges";
+  const phoneTel = `tel:${phone.replace(/\s/g, "")}`;
+
   return (
     <section className="py-16 sm:py-24">
       <div className="mx-auto max-w-3xl px-4 sm:px-6">
@@ -60,17 +69,17 @@ export default function CabinetPage() {
           <div>
             <p className="font-semibold text-foreground">Adresse</p>
             <a
-              href="https://maps.google.com/?q=Rue+de+Couvaloup+16+1110+Morges"
+              href={googleMapsUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-foreground"
             >
-              Rue de Couvaloup 16, 1110 Morges
+              {address.replace(/\n/g, ", ")}
             </a>
           </div>
         </div>
 
-        <a href="tel:+41772747144" className={cn(buttonVariants({ size: "lg" }), "mt-8")}>
+        <a href={phoneTel} className={cn(buttonVariants({ size: "lg" }), "mt-8")}>
           <Phone className="mr-2 h-5 w-5" />
           Prendre rendez-vous
         </a>

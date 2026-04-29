@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getPublishedServices } from "@/db/queries";
+import { getPublishedServices, getSiteSettings } from "@/db/queries";
 import { ConditionCard } from "@/components/public/condition-card";
 import { CTABlock } from "@/components/public/cta-block";
 
@@ -14,7 +14,11 @@ export const metadata: Metadata = {
 };
 
 export default async function VertigesTraitesPage() {
-  const services = await getPublishedServices();
+  const [services, settings] = await Promise.all([
+    getPublishedServices(),
+    getSiteSettings(),
+  ]);
+  const phone = settings?.phone ?? "+41 77 274 71 44";
 
   return (
     <>
@@ -61,7 +65,8 @@ export default async function VertigesTraitesPage() {
       <CTABlock
         variant="fullwidth"
         title="Besoin d'un avis ?"
-        description="Contactez Arnaud Canadas pour une évaluation vestibulaire complète à Morges."
+        description="Contactez Arnaud Canadas pour une evaluation vestibulaire complete a Morges."
+        phone={phone}
       />
     </>
   );

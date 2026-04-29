@@ -32,6 +32,13 @@ export const siteSettings = pgTable("site_settings", {
   homeAnatomyCaption: text("home_anatomy_caption"),
   googleReviewCount: integer("google_review_count"),
   googleAverageRating: numeric("google_average_rating"),
+  // Contact display
+  openingHoursText: text("opening_hours_text"),
+  googleMapsUrl: text("google_maps_url"),
+  googleMapsEmbedUrl: text("google_maps_embed_url"),
+  // Footer
+  footerDescription: text("footer_description"),
+  footerServiceArea: text("footer_service_area"),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 

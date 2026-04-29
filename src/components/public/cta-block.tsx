@@ -7,13 +7,17 @@ type Props = {
   title?: string;
   description?: string;
   variant?: "inline" | "fullwidth";
+  phone?: string;
 };
 
 export function CTABlock({
-  title = "Vous reconnaissez ces symptômes ?",
+  title = "Vous reconnaissez ces symptomes ?",
   description = "Prenez rendez-vous avec Arnaud Canadas pour un bilan vestibulaire complet.",
   variant = "inline",
+  phone = "+41 77 274 71 44",
 }: Props) {
+  const phoneTel = `tel:${phone.replace(/\s/g, "")}`;
+
   if (variant === "fullwidth") {
     return (
       <section className="bg-primary py-16 text-primary-foreground md:py-20">
@@ -26,7 +30,7 @@ export function CTABlock({
           </p>
           <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
             <a
-              href="tel:+41772747144"
+              href={phoneTel}
               className={cn(
                 buttonVariants({ size: "lg", variant: "secondary" }),
                 "text-primary"
@@ -62,7 +66,7 @@ export function CTABlock({
       <p className="mt-2 text-sm text-muted-foreground">{description}</p>
       <div className="mt-4 flex flex-col gap-3 sm:flex-row">
         <a
-          href="tel:+41772747144"
+          href={phoneTel}
           className={cn(buttonVariants({ size: "sm" }))}
         >
           <Phone className="mr-2 h-4 w-4" />

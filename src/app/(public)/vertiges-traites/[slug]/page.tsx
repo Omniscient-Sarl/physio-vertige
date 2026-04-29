@@ -10,6 +10,7 @@ import {
   getServiceBySlug,
   getPublishedFaqs,
   getPublishedTestimonials,
+  getSiteSettings,
 } from "@/db/queries";
 import { FAQAccordion } from "@/components/public/faq-accordion";
 import { CTABlock } from "@/components/public/cta-block";
@@ -48,10 +49,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ConditionPage({ params }: Props) {
   const { slug } = await params;
-  const [service, allServices] = await Promise.all([
+  const [service, allServices, settings] = await Promise.all([
     getServiceBySlug(slug),
     getPublishedServices(),
+    getSiteSettings(),
   ]);
+  const phone = settings?.phone ?? "+41 77 274 71 44";
   if (!service) notFound();
 
   const [conditionFaqs, conditionTestimonials] = await Promise.all([
@@ -151,7 +154,7 @@ export default async function ConditionPage({ params }: Props) {
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <a
-              href="tel:+41772747144"
+              href={`tel:${phone.replace(/\s/g, "")}`}
               className={cn(buttonVariants({ size: "lg" }))}
             >
               <Phone className="mr-2 h-5 w-5" />
@@ -221,7 +224,7 @@ export default async function ConditionPage({ params }: Props) {
           )}
 
           {/* CTA mid-page */}
-          <CTABlock />
+          <CTABlock phone={phone} />
 
           {/* Protocol */}
           {service.protocol && (
@@ -335,9 +338,10 @@ export default async function ConditionPage({ params }: Props) {
         variant="fullwidth"
         title="Prendre rendez-vous"
         description="Commencez votre traitement dès aujourd'hui. Arnaud Canadas vous accueille à Morges."
+        phone={phone}
       />
 
-      <BookingStickyMobile />
+      <BookingStickyMobile phone={phone} />
     </>
   );
 }

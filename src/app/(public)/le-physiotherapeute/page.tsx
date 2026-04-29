@@ -44,6 +44,7 @@ function PersonJsonLd() {
 
 export default async function PhysiotherapeutePage() {
   const settings = await getSiteSettings();
+  const phone = settings?.phone ?? "+41 77 274 71 44";
   const aboutImageUrl = settings?.aboutImageUrl;
   const aboutImageAlt =
     settings?.aboutImageAlt ??
@@ -130,7 +131,7 @@ export default async function PhysiotherapeutePage() {
                 </li>
               </ul>
 
-              <a href="tel:+41772747144" className={cn(buttonVariants({ size: "lg" }), "mt-8")}>
+              <a href={`tel:${phone.replace(/\s/g, "")}`} className={cn(buttonVariants({ size: "lg" }), "mt-8")}>
                 <Phone className="mr-2 h-5 w-5" />
                 Prendre rendez-vous
               </a>

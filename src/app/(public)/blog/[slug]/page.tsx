@@ -57,6 +57,7 @@ export default async function BlogPostPage({ params }: Props) {
   ]);
   if (!post) notFound();
 
+  const phone = settings?.phone ?? "+41 77 274 71 44";
   const content = post.content ?? "";
   const headings = extractHeadings(content);
 
@@ -286,8 +287,9 @@ export default async function BlogPostPage({ params }: Props) {
       {/* Final CTA */}
       <CTABlock
         variant="fullwidth"
-        title="Vous reconnaissez ces symptômes ?"
+        title="Vous reconnaissez ces symptomes ?"
         description="Prenez rendez-vous avec Arnaud Canadas pour un bilan vestibulaire complet."
+        phone={phone}
       />
     </>
   );

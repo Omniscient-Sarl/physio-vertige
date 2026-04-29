@@ -22,6 +22,13 @@ const settingsSchema = z.object({
   // Anatomy
   homeAnatomyDiagramUrl: z.string().optional(),
   homeAnatomyCaption: z.string().optional(),
+  // Contact display
+  openingHoursText: z.string().optional(),
+  googleMapsUrl: z.string().optional(),
+  googleMapsEmbedUrl: z.string().optional(),
+  // Footer
+  footerDescription: z.string().optional(),
+  footerServiceArea: z.string().optional(),
   // SEO & Google
   defaultOgImageUrl: z.string().optional(),
   googleVerification: z.string().optional(),
@@ -57,6 +64,9 @@ export async function updateSiteSettings(
 
   revalidatePath("/");
   revalidatePath("/contact");
+  revalidatePath("/cabinet");
   revalidatePath("/le-physiotherapeute");
+  revalidatePath("/vertiges-traites");
+  revalidatePath("/blog");
   return { success: true };
 }

@@ -2,6 +2,7 @@
 
 import { Resend } from "resend";
 import { z } from "zod";
+import { getSiteSettings } from "@/db/queries";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -41,9 +42,12 @@ export async function sendContactEmail(
   rateLimitMap.set(key, now);
 
   try {
+    const settings = await getSiteSettings();
+    const contactEmail = settings?.contactEmail || settings?.email || "info@physio-vertige.ch";
+
     await resend.emails.send({
       from: "Physio-Vertige <onboarding@resend.dev>",
-      to: "info@physio-vertige.ch",
+      to: contactEmail,
       replyTo: parsed.data.email,
       subject: `[Contact] ${parsed.data.subject}`,
       text: `Nouveau message de contact\n\nNom: ${parsed.data.name}\nEmail: ${parsed.data.email}\nTéléphone: ${parsed.data.phone || "Non renseigné"}\nSujet: ${parsed.data.subject}\n\nMessage:\n${parsed.data.message}`,

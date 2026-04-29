@@ -20,6 +20,13 @@ const schema = z.object({
   email: z.string().optional(),
   contactEmail: z.string().optional(),
   address: z.string().optional(),
+  // Contact display
+  openingHoursText: z.string().optional(),
+  googleMapsUrl: z.string().optional(),
+  googleMapsEmbedUrl: z.string().optional(),
+  // Footer
+  footerDescription: z.string().optional(),
+  footerServiceArea: z.string().optional(),
   // Hero
   homeHeroImageUrl: z.string().optional(),
   homeHeroImageAlt: z.string().optional(),
@@ -55,6 +62,11 @@ export function SiteSettingsForm({ settings }: { settings: Settings }) {
       email: str("email"),
       contactEmail: str("contactEmail"),
       address: str("address"),
+      openingHoursText: str("openingHoursText"),
+      googleMapsUrl: str("googleMapsUrl"),
+      googleMapsEmbedUrl: str("googleMapsEmbedUrl"),
+      footerDescription: str("footerDescription"),
+      footerServiceArea: str("footerServiceArea"),
       homeHeroImageUrl: str("homeHeroImageUrl"),
       homeHeroImageAlt: str("homeHeroImageAlt"),
       aboutImageUrl: str("aboutImageUrl"),
@@ -115,6 +127,62 @@ export function SiteSettingsForm({ settings }: { settings: Settings }) {
           <div>
             <Label htmlFor="address">Adresse</Label>
             <Textarea id="address" {...register("address")} className="mt-1" rows={2} />
+          </div>
+          <div>
+            <Label htmlFor="openingHoursText">Horaires (texte affiche)</Label>
+            <Textarea
+              id="openingHoursText"
+              {...register("openingHoursText")}
+              className="mt-1"
+              rows={2}
+              placeholder={"Lundi - Vendredi : 08h00 - 19h00\nSur rendez-vous uniquement"}
+            />
+          </div>
+          <div>
+            <Label htmlFor="googleMapsUrl">Lien Google Maps</Label>
+            <Input
+              id="googleMapsUrl"
+              {...register("googleMapsUrl")}
+              className="mt-1"
+              placeholder="https://maps.google.com/?q=..."
+            />
+          </div>
+          <div>
+            <Label htmlFor="googleMapsEmbedUrl">URL embed Google Maps (iframe)</Label>
+            <Input
+              id="googleMapsEmbedUrl"
+              {...register("googleMapsEmbedUrl")}
+              className="mt-1"
+              placeholder="https://www.google.com/maps/embed?pb=..."
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Footer */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Pied de page</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <Label htmlFor="footerDescription">Description (pied de page)</Label>
+            <Textarea
+              id="footerDescription"
+              {...register("footerDescription")}
+              className="mt-1"
+              rows={2}
+              placeholder="Physiotherapie vestibulaire specialisee a Morges..."
+            />
+          </div>
+          <div>
+            <Label htmlFor="footerServiceArea">Zone de couverture</Label>
+            <Input
+              id="footerServiceArea"
+              {...register("footerServiceArea")}
+              className="mt-1"
+              placeholder="Morges, Lausanne, Nyon, Vevey, Canton de Vaud"
+            />
           </div>
         </CardContent>
       </Card>
