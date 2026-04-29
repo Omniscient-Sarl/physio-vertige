@@ -166,16 +166,16 @@ export default async function HomePage() {
             </div>
             {/* Right: portrait */}
             {heroImageUrl && (
-              <div className="relative w-56 shrink-0 sm:w-64 lg:w-72">
-                <div className="aspect-[3/4] overflow-hidden rounded-2xl shadow-xl">
+              <div className="relative w-72 shrink-0 sm:w-80 lg:w-96">
+                <div className="aspect-[16/9] overflow-hidden rounded-2xl shadow-xl">
                   <Image
                     src={heroImageUrl}
                     alt={heroImageAlt}
-                    width={792}
-                    height={1280}
+                    width={1280}
+                    height={720}
                     priority
                     fetchPriority="high"
-                    sizes="(max-width: 768px) 60vw, 288px"
+                    sizes="(max-width: 768px) 80vw, 384px"
                     className="h-full w-full object-cover"
                   />
                 </div>
