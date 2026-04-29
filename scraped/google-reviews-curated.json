@@ -1,0 +1,25 @@
+{
+  "scraped_at": "2026-04-29T15:52:52.875Z",
+  "place_url": "https://www.google.com/maps/place/Physio-vertige+Arnaud+Canadas/data=!4m2!3m1!1s0x0:0x4760ff2303cc9752",
+  "unique_count": 2,
+  "with_content_count": 2,
+  "average_rating": 5.0,
+  "reviews": [
+    {
+      "review_id": "enguerrand-2026-04-w1",
+      "author_name": "Enguerrand",
+      "author_avatar_url": "https://lh3.googleusercontent.com/a/ACg8ocJunbUaDmFxv2kmnbhbs-qCpHj3JMp7zVLhXm8vuqdY1yk40g=w36-h36-p-rp-mo-br100",
+      "rating": 5,
+      "relative_time": "il y a une semaine",
+      "content": "J'avais des problèmes vestibulaires et en 4 séances plus rien !!! Je recommande à qui cherche un bon physio vestibulaire dans le canton de Vaud. Professionnel et à l'écoute, au top !"
+    },
+    {
+      "review_id": "vernex-loset-margaux-2026-03",
+      "author_name": "Vernex-loset Margaux",
+      "author_avatar_url": "https://lh3.googleusercontent.com/a-/ALV-UjVdkbyqme8vFASZURigS3migWi4pQQu_D4Yu6QEvKraRcgvdazd=w36-h36-p-rp-mo-br100",
+      "rating": 5,
+      "relative_time": "il y a un mois",
+      "content": "Excellente prise en charge, avec des professionnels compétents et à l'écoute, merci à Arnaud pour sa patience et ses connaissances. Le cabinet est facile d'accès et bien agencé. Je recommande fortement!"
+    }
+  ]
+}

@@ -15,6 +15,8 @@ const settingsSchema = z.object({
   address: z.string().optional(),
   googleVerification: z.string().optional(),
   googleBusinessUrl: z.string().optional(),
+  googleReviewCount: z.string().optional(),
+  googleAverageRating: z.string().optional(),
   homeHeroImageUrl: z.string().optional(),
   homeAnatomyDiagramUrl: z.string().optional(),
   homeAnatomyCaption: z.string().optional(),
@@ -28,15 +30,20 @@ export async function updateSiteSettings(
 
   const existing = await db.select().from(siteSettings).limit(1);
 
+  const values = {
+    ...parsed.data,
+    googleReviewCount: parsed.data.googleReviewCount
+      ? parseInt(parsed.data.googleReviewCount, 10)
+      : null,
+    updatedAt: new Date(),
+  };
+
   if (existing.length === 0) {
-    await db.insert(siteSettings).values({
-      ...parsed.data,
-      updatedAt: new Date(),
-    });
+    await db.insert(siteSettings).values(values);
   } else {
     await db
       .update(siteSettings)
-      .set({ ...parsed.data, updatedAt: new Date() })
+      .set(values)
       .where(eq(siteSettings.id, existing[0].id));
   }
 

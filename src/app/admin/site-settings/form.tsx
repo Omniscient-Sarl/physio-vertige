@@ -21,6 +21,8 @@ const schema = z.object({
   address: z.string().optional(),
   googleVerification: z.string().optional(),
   googleBusinessUrl: z.string().optional(),
+  googleReviewCount: z.string().optional(),
+  googleAverageRating: z.string().optional(),
   homeHeroImageUrl: z.string().optional(),
   homeAnatomyDiagramUrl: z.string().optional(),
   homeAnatomyCaption: z.string().optional(),
@@ -37,6 +39,8 @@ type Settings = {
   address: string | null;
   googleVerification: string | null;
   googleBusinessUrl: string | null;
+  googleReviewCount: string | number | null;
+  googleAverageRating: string | null;
   homeHeroImageUrl: string | null;
   homeAnatomyDiagramUrl: string | null;
   homeAnatomyCaption: string | null;
@@ -55,6 +59,8 @@ export function SiteSettingsForm({ settings }: { settings: Settings }) {
       address: settings?.address ?? "",
       googleVerification: settings?.googleVerification ?? "",
       googleBusinessUrl: settings?.googleBusinessUrl ?? "",
+      googleReviewCount: settings?.googleReviewCount?.toString() ?? "",
+      googleAverageRating: settings?.googleAverageRating ?? "",
       homeHeroImageUrl: settings?.homeHeroImageUrl ?? "",
       homeAnatomyDiagramUrl: settings?.homeAnatomyDiagramUrl ?? "",
       homeAnatomyCaption: settings?.homeAnatomyCaption ?? "",
@@ -109,6 +115,16 @@ export function SiteSettingsForm({ settings }: { settings: Settings }) {
           <div>
             <Label htmlFor="googleBusinessUrl">Google Business URL</Label>
             <Input id="googleBusinessUrl" {...register("googleBusinessUrl")} className="mt-1" placeholder="https://www.google.com/maps/place/..." />
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <Label htmlFor="googleReviewCount">Nombre d&apos;avis Google</Label>
+              <Input id="googleReviewCount" type="number" {...register("googleReviewCount")} className="mt-1" />
+            </div>
+            <div>
+              <Label htmlFor="googleAverageRating">Note moyenne Google</Label>
+              <Input id="googleAverageRating" {...register("googleAverageRating")} className="mt-1" placeholder="5.0" />
+            </div>
           </div>
           <div>
             <Label htmlFor="homeHeroImageUrl">Image hero (accueil)</Label>

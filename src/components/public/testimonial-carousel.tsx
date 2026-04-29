@@ -63,58 +63,67 @@ export function TestimonialCarousel({
 }) {
   if (testimonials.length === 0) return null;
 
+  const useCarousel = testimonials.length > 2;
+
+  const cards = testimonials.map((t) => (
+    <Card key={t.id} className="h-full border-border/60">
+      <CardContent className="flex h-full flex-col p-6">
+        <div className="flex items-center justify-between">
+          <div className="flex gap-0.5">
+            {Array.from({ length: t.rating ?? 5 }).map((_, i) => (
+              <Star
+                key={i}
+                className="h-4 w-4 fill-coral-500 text-coral-500"
+              />
+            ))}
+          </div>
+          {t.source === "google" && <GoogleBadge />}
+        </div>
+        <p className="mt-4 flex-1 text-sm leading-relaxed text-muted-foreground italic">
+          &ldquo;{t.content}&rdquo;
+        </p>
+        <div className="mt-4 flex items-center gap-2">
+          <AuthorAvatar name={t.authorName} url={t.authorAvatarUrl} />
+          <div>
+            <p className="text-sm font-semibold text-foreground">
+              {t.authorName}
+            </p>
+            {t.relativeTime && (
+              <p className="text-xs text-muted-foreground">
+                {t.relativeTime}
+              </p>
+            )}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  ));
+
   return (
     <div>
-      <Carousel
-        opts={{ align: "start", loop: true }}
-        className="mx-auto w-full max-w-5xl"
-      >
-        <CarouselContent className="-ml-4">
-          {testimonials.map((t) => (
-            <CarouselItem
-              key={t.id}
-              className="pl-4 sm:basis-1/2 lg:basis-1/3"
-            >
-              <Card className="h-full border-border/60">
-                <CardContent className="flex h-full flex-col p-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex gap-0.5">
-                      {Array.from({ length: t.rating ?? 5 }).map((_, i) => (
-                        <Star
-                          key={i}
-                          className="h-4 w-4 fill-coral-500 text-coral-500"
-                        />
-                      ))}
-                    </div>
-                    {t.source === "google" && <GoogleBadge />}
-                  </div>
-                  <p className="mt-4 flex-1 text-sm leading-relaxed text-muted-foreground italic">
-                    &ldquo;{t.content}&rdquo;
-                  </p>
-                  <div className="mt-4 flex items-center gap-2">
-                    <AuthorAvatar
-                      name={t.authorName}
-                      url={t.authorAvatarUrl}
-                    />
-                    <div>
-                      <p className="text-sm font-semibold text-foreground">
-                        {t.authorName}
-                      </p>
-                      {t.relativeTime && (
-                        <p className="text-xs text-muted-foreground">
-                          {t.relativeTime}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-        <CarouselPrevious className="-left-4 hidden sm:flex" />
-        <CarouselNext className="-right-4 hidden sm:flex" />
-      </Carousel>
+      {useCarousel ? (
+        <Carousel
+          opts={{ align: "start", loop: true }}
+          className="mx-auto w-full max-w-5xl"
+        >
+          <CarouselContent className="-ml-4">
+            {testimonials.map((t, i) => (
+              <CarouselItem
+                key={t.id}
+                className="pl-4 sm:basis-1/2 lg:basis-1/3"
+              >
+                {cards[i]}
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <CarouselPrevious className="-left-4 hidden sm:flex" />
+          <CarouselNext className="-right-4 hidden sm:flex" />
+        </Carousel>
+      ) : (
+        <div className="mx-auto grid max-w-3xl gap-6 sm:grid-cols-2">
+          {cards}
+        </div>
+      )}
       {googleBusinessUrl && (
         <div className="mt-6 text-center">
           <a

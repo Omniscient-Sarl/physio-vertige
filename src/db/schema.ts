@@ -8,6 +8,7 @@ import {
   serial,
   varchar,
   uniqueIndex,
+  numeric,
 } from "drizzle-orm/pg-core";
 
 export const siteSettings = pgTable("site_settings", {
@@ -26,6 +27,8 @@ export const siteSettings = pgTable("site_settings", {
   homeHeroImageUrl: text("home_hero_image_url"),
   homeAnatomyDiagramUrl: text("home_anatomy_diagram_url"),
   homeAnatomyCaption: text("home_anatomy_caption"),
+  googleReviewCount: integer("google_review_count"),
+  googleAverageRating: numeric("google_average_rating"),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 

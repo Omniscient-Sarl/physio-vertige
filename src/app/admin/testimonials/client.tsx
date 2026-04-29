@@ -24,6 +24,9 @@ const schema = z.object({
   rating: z.number().int().min(1).max(5),
   order: z.number().int(),
   published: z.boolean(),
+  source: z.string().optional(),
+  sourceUrl: z.string().optional(),
+  relativeTime: z.string().optional(),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -34,6 +37,9 @@ type Testimonial = {
   rating: number | null;
   order: number;
   published: boolean;
+  source: string | null;
+  sourceUrl: string | null;
+  relativeTime: string | null;
 };
 
 function TestimonialForm({
@@ -53,8 +59,11 @@ function TestimonialForm({
           rating: testimonial.rating ?? 5,
           order: testimonial.order,
           published: testimonial.published,
+          source: testimonial.source ?? "",
+          sourceUrl: testimonial.sourceUrl ?? "",
+          relativeTime: testimonial.relativeTime ?? "",
         }
-      : { rating: 5, order: 0, published: true },
+      : { rating: 5, order: 0, published: true, source: "", sourceUrl: "", relativeTime: "" },
   });
 
   async function onSubmit(data: FormData) {
@@ -100,6 +109,20 @@ function TestimonialForm({
       <div>
         <Label>Contenu</Label>
         <Textarea {...register("content")} className="mt-1" rows={3} />
+      </div>
+      <div className="grid gap-4 sm:grid-cols-3">
+        <div>
+          <Label>Source</Label>
+          <Input {...register("source")} className="mt-1" placeholder="google / manual" />
+        </div>
+        <div>
+          <Label>URL source</Label>
+          <Input {...register("sourceUrl")} className="mt-1" placeholder="https://..." />
+        </div>
+        <div>
+          <Label>Date relative</Label>
+          <Input {...register("relativeTime")} className="mt-1" placeholder="il y a 2 semaines" />
+        </div>
       </div>
       <div className="flex items-center gap-2">
         <input

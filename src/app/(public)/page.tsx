@@ -27,21 +27,29 @@ export const revalidate = 60;
 function LocalBusinessJsonLd(props: {
   phone: string;
   email: string;
+  googleReviewCount: number | null;
+  googleAverageRating: string | null;
   testimonials: Array<{ rating: number | null }>;
 }) {
+  // Prefer explicit site_settings values, fall back to computed from testimonials
   const ratingsOnly = props.testimonials
     .map((t) => t.rating)
     .filter((r): r is number => r !== null && r > 0);
 
+  const reviewCount = props.googleReviewCount ?? ratingsOnly.length;
+  const avgRating = props.googleAverageRating
+    ? parseFloat(props.googleAverageRating)
+    : ratingsOnly.length > 0
+      ? ratingsOnly.reduce((a, b) => a + b, 0) / ratingsOnly.length
+      : 0;
+
   const aggregateRating =
-    ratingsOnly.length >= 3
+    reviewCount >= 2 && avgRating > 0
       ? {
           aggregateRating: {
             "@type": "AggregateRating",
-            ratingValue: (
-              ratingsOnly.reduce((a, b) => a + b, 0) / ratingsOnly.length
-            ).toFixed(1),
-            reviewCount: ratingsOnly.length,
+            ratingValue: avgRating.toFixed(1),
+            reviewCount,
             bestRating: 5,
             worstRating: 1,
           },
@@ -114,6 +122,8 @@ export default async function HomePage() {
       <LocalBusinessJsonLd
         phone={phone}
         email={email}
+        googleReviewCount={settings?.googleReviewCount ?? null}
+        googleAverageRating={settings?.googleAverageRating ?? null}
         testimonials={testimonials}
       />
 

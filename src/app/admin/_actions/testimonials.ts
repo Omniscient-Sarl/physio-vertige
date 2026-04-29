@@ -13,6 +13,9 @@ const testimonialSchema = z.object({
   order: z.number().int(),
   published: z.boolean(),
   serviceId: z.number().int().nullable().optional(),
+  source: z.string().optional(),
+  sourceUrl: z.string().optional(),
+  relativeTime: z.string().optional(),
 });
 
 export async function createTestimonial(data: z.infer<typeof testimonialSchema>) {

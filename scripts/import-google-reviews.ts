@@ -1,6 +1,6 @@
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
-import { eq, and, isNull, or, sql as rawSql } from "drizzle-orm";
+import { eq, or, isNull } from "drizzle-orm";
 import * as schema from "../src/db/schema";
 import * as fs from "fs";
 import * as path from "path";
@@ -20,13 +20,20 @@ interface ScrapedReview {
 interface ScrapedData {
   scraped_at: string;
   place_url: string;
-  total_count: number;
+  unique_count?: number;
+  total_count?: number;
+  with_content_count?: number;
   average_rating: number;
   reviews: ScrapedReview[];
 }
 
 async function run() {
-  const filePath = path.join(process.cwd(), "scraped", "google-reviews.json");
+  // Accept optional file path argument
+  const customPath = process.argv.slice(2).find((a) => !a.startsWith("--"));
+  const filePath = customPath
+    ? path.resolve(customPath)
+    : path.join(process.cwd(), "scraped", "google-reviews.json");
+
   if (!fs.existsSync(filePath)) {
     console.error(`File not found: ${filePath}`);
     console.error("Run 'npm run scrape:google-reviews' first.");
@@ -34,10 +41,11 @@ async function run() {
   }
 
   const data: ScrapedData = JSON.parse(fs.readFileSync(filePath, "utf-8"));
-  console.log(`Importing ${data.reviews.length} Google reviews...`);
+  const reviewCount = data.unique_count ?? data.total_count ?? data.reviews.length;
+  console.log(`Importing ${data.reviews.length} Google reviews from ${path.basename(filePath)}...`);
 
   // Delete old seed/manual testimonials (no source or source='manual')
-  const deleted = await db
+  await db
     .delete(schema.testimonials)
     .where(
       or(
@@ -45,7 +53,7 @@ async function run() {
         eq(schema.testimonials.source, "manual")
       )
     );
-  console.log(`Deleted old seed testimonials`);
+  console.log("Deleted old seed/manual testimonials");
 
   let inserted = 0;
   let skipped = 0;
@@ -84,11 +92,20 @@ async function run() {
     inserted++;
   }
 
-  console.log(`\n✅ Import complete.`);
-  console.log(`   Inserted: ${inserted}`);
-  console.log(`   Skipped:  ${skipped} (empty or already present)`);
-  console.log(`   Total in DB: ${inserted} google reviews`);
-  console.log(`\nNote: Vercel will pick up changes on next revalidation (ISR 60s).`);
+  // Update site_settings with review stats
+  await db
+    .update(schema.siteSettings)
+    .set({
+      googleReviewCount: reviewCount,
+      googleAverageRating: data.average_rating.toString(),
+    })
+    .where(eq(schema.siteSettings.id, 1));
+
+  console.log(`\nDone.`);
+  console.log(`  Inserted: ${inserted}`);
+  console.log(`  Skipped:  ${skipped} (empty or already present)`);
+  console.log(`  site_settings: google_review_count=${reviewCount}, google_average_rating=${data.average_rating}`);
+  console.log(`\nVercel will pick up changes on next revalidation (ISR 60s).`);
 }
 
 run().catch((err) => {
