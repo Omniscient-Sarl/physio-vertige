@@ -42,7 +42,7 @@ export function CTABlock({
                   size: "lg",
                   variant: "outline",
                 }),
-                "border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10"
+                "border-primary-foreground/30 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
               )}
             >
               Formulaire de contact
