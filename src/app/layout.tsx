@@ -3,6 +3,7 @@ import { Inter, Fraunces } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { getSiteSettings } from "@/db/queries";
 import { SITE_URL } from "@/lib/utils";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const inter = Inter({
@@ -88,6 +89,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         {children}
         <Toaster />
+        <Analytics />
       </body>
     </html>
   );
