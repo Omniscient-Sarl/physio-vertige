@@ -90,6 +90,8 @@ const SECTION_REGISTRY: Record<string, SectionTypeDef> = {
     fields: [
       { key: "h1", label: "Titre principal (H1)", type: "text", help: "Unique sur la page, important pour le SEO. Max ~70 caracteres." },
       { key: "subhead", label: "Sous-titre", type: "textarea", rows: 3, help: "Sauts de ligne conserves." },
+      { key: "image_url", label: "Image hero", type: "image" },
+      { key: "image_alt", label: "Texte alternatif image", type: "text" },
     ],
   },
   conditions_grid: {
@@ -106,6 +108,9 @@ const SECTION_REGISTRY: Record<string, SectionTypeDef> = {
       { key: "eyebrow", label: "Surtitre", type: "text" },
       { key: "h2", label: "Titre", type: "text" },
       { key: "body", label: "Corps", type: "textarea", rows: 6, help: "Separez les paragraphes par une ligne vide." },
+      { key: "image_url", label: "Diagramme anatomie", type: "image" },
+      { key: "image_alt", label: "Texte alternatif diagramme", type: "text" },
+      { key: "caption", label: "Legende", type: "text" },
     ],
   },
   process_timeline: {
@@ -151,6 +156,16 @@ const SECTION_REGISTRY: Record<string, SectionTypeDef> = {
       { key: "eyebrow", label: "Surtitre", type: "text" },
       { key: "h2", label: "Nom", type: "text" },
       { key: "body", label: "Texte de presentation", type: "textarea", rows: 4 },
+      { key: "image_url", label: "Portrait", type: "image" },
+      { key: "image_alt", label: "Texte alternatif portrait", type: "text" },
+      {
+        key: "qualifications",
+        label: "Qualifications",
+        type: "array",
+        arrayItemFields: [
+          { key: "value", label: "Qualification", type: "text" },
+        ],
+      },
     ],
   },
   blog_teaser: {
@@ -174,6 +189,8 @@ const SECTION_REGISTRY: Record<string, SectionTypeDef> = {
       { key: "h1", label: "Nom (H1)", type: "text" },
       { key: "subtitle", label: "Sous-titre", type: "text" },
       { key: "body", label: "Texte biographique", type: "textarea", rows: 8, help: "Separez les paragraphes par une ligne vide." },
+      { key: "image_url", label: "Portrait", type: "image" },
+      { key: "image_alt", label: "Texte alternatif portrait", type: "text" },
       {
         key: "qualifications",
         label: "Qualifications",
@@ -426,7 +443,11 @@ function SectionForm({
           return (
             <div key={field.key}>
               <Label>{field.label}</Label>
-              <ImagePicker value={imageUrl} onChange={setImageUrl} label={field.label} />
+              <ImagePicker
+                value={str(field.key)}
+                onChange={(v) => set(field.key, v)}
+                label={field.label}
+              />
               {field.help && <p className="mt-1 text-xs text-muted-foreground">{field.help}</p>}
             </div>
           );

@@ -15,7 +15,7 @@ import {
 import { ProcessTimeline } from "@/components/public/process-timeline";
 import { ConditionCard } from "@/components/public/condition-card";
 import { FAQAccordion } from "@/components/public/faq-accordion";
-import { CTABlock } from "@/components/public/cta-block";
+import { ContactForm } from "@/components/public/contact-form";
 
 const TestimonialCarousel = dynamic(() =>
   import("@/components/public/testimonial-carousel").then(
@@ -109,17 +109,6 @@ export default async function HomePage() {
   const email = settings?.email ?? "info@physio-vertige.ch";
   const phoneTel = `tel:${phone.replace(/\s/g, "")}`;
   const latestPosts = blogPosts.slice(0, 3);
-  const heroImageUrl = settings?.homeHeroImageUrl;
-  const heroImageAlt =
-    settings?.homeHeroImageAlt ??
-    "Arnaud Canadas, physiothérapeute vestibulaire spécialisé à Morges";
-  const anatomyDiagramUrl = settings?.homeAnatomyDiagramUrl;
-  const anatomyDiagramAlt =
-    settings?.homeAnatomyDiagramAlt ??
-    "Labyrinthe membraneux — schéma anatomique du système vestibulaire (vestibule en orange, cochlée en vert)";
-  const anatomyCaption =
-    settings?.homeAnatomyCaption ??
-    "Labyrinthe membraneux — vestibulaire (orange) et cochléaire (vert)";
   const googleBusinessUrl =
     settings?.googleBusinessUrl ??
     "https://www.google.com/maps/place/Physio-vertige+Arnaud+Canadas/data=!4m2!3m1!1s0x0:0x4760ff2303cc9752";
@@ -134,12 +123,24 @@ export default async function HomePage() {
   const conditionsContent = content?.get("conditions_grid") ?? {};
   const anatomyContent = content?.get("anatomy") ?? {};
   const processContent = content?.get("process_timeline") ?? {};
-  const ctaCardContent = content?.get("cta_card") ?? {};
   const testimonialsContent = content?.get("testimonials") ?? {};
   const miniBioContent = content?.get("mini_bio") ?? {};
   const blogTeaserContent = content?.get("blog_teaser") ?? {};
   const faqContent = content?.get("faq") ?? {};
   const finalCtaContent = content?.get("cta_fullwidth") ?? {};
+
+  // Images: read from section content first, fall back to site_settings
+  const heroImageUrl = (heroContent.image_url as string) || settings?.homeHeroImageUrl;
+  const heroImageAlt =
+    (heroContent.image_alt as string) || (settings?.homeHeroImageAlt ??
+    "Arnaud Canadas, physiothérapeute vestibulaire spécialisé à Morges");
+  const anatomyDiagramUrl = (anatomyContent.image_url as string) || settings?.homeAnatomyDiagramUrl;
+  const anatomyDiagramAlt =
+    (anatomyContent.image_alt as string) || (settings?.homeAnatomyDiagramAlt ??
+    "Labyrinthe membraneux — schéma anatomique du système vestibulaire (vestibule en orange, cochlée en vert)");
+  const anatomyCaption =
+    (anatomyContent.caption as string) || (settings?.homeAnatomyCaption ??
+    "Labyrinthe membraneux — vestibulaire (orange) et cochléaire (vert)");
 
   const processSteps = (processContent.steps as Array<{ title: string; description: string }>) ?? [
     { title: "Évaluation", description: "Bilan complet : tests oculomoteurs, manœuvres positionnelles, analyse de l'équilibre et de la marche." },
@@ -162,50 +163,45 @@ export default async function HomePage() {
 
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-b from-teal-50 to-background py-20 md:py-32">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <div className="flex flex-col items-center gap-12 lg:flex-row lg:gap-16">
-            <div className="flex-1 text-center lg:text-left">
-              <h1 className="font-heading text-4xl font-bold leading-[1.15] text-foreground sm:text-5xl lg:text-6xl">
-                {(heroContent.h1 as string) ?? "Retrouvez votre équilibre."}
-              </h1>
-              <p className="mt-4 text-lg text-muted-foreground sm:text-xl whitespace-pre-line">
-                {(heroContent.subhead as string) ?? "Physiothérapie vestibulaire spécialisée à Morges.\nArnaud Canadas vous accompagne pour traiter vos vertiges avec une approche experte et rassurante."}
-              </p>
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
-                <a
-                  href={phoneTel}
-                  className={cn(buttonVariants({ size: "lg" }))}
-                >
-                  <Phone className="mr-2 h-5 w-5" />
-                  Prendre rendez-vous
-                </a>
-                <Link
-                  href="/vertiges-traites"
-                  className={cn(
-                    buttonVariants({ variant: "outline", size: "lg" })
-                  )}
-                >
-                  Comprendre mes vertiges
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </div>
+        {heroImageUrl && (
+          <div className="absolute inset-0" aria-hidden="true">
+            <Image
+              src={heroImageUrl}
+              alt=""
+              fill
+              priority
+              fetchPriority="high"
+              sizes="100vw"
+              className="object-cover opacity-[0.12]"
+            />
+          </div>
+        )}
+        <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
+          <div className="mx-auto max-w-2xl text-center">
+            <h1 className="font-heading text-4xl font-bold leading-[1.15] text-foreground sm:text-5xl lg:text-6xl">
+              {(heroContent.h1 as string) ?? "Retrouvez votre équilibre."}
+            </h1>
+            <p className="mt-4 text-lg text-muted-foreground sm:text-xl whitespace-pre-line">
+              {(heroContent.subhead as string) ?? "Physiothérapie vestibulaire spécialisée à Morges.\nArnaud Canadas vous accompagne pour traiter vos vertiges avec une approche experte et rassurante."}
+            </p>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
+              <a
+                href={phoneTel}
+                className={cn(buttonVariants({ size: "lg" }))}
+              >
+                <Phone className="mr-2 h-5 w-5" />
+                Prendre rendez-vous
+              </a>
+              <Link
+                href="/vertiges-traites"
+                className={cn(
+                  buttonVariants({ variant: "outline", size: "lg" })
+                )}
+              >
+                Comprendre mes vertiges
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
             </div>
-            {heroImageUrl && (
-              <div className="relative w-72 shrink-0 sm:w-80 lg:w-96">
-                <div className="aspect-[16/9] overflow-hidden rounded-2xl shadow-xl">
-                  <Image
-                    src={heroImageUrl}
-                    alt={heroImageAlt}
-                    width={1280}
-                    height={720}
-                    priority
-                    fetchPriority="high"
-                    sizes="(max-width: 768px) 80vw, 384px"
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </section>
@@ -299,14 +295,59 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Inline CTA */}
+      {/* About mini-block */}
       <section className="py-20 md:py-32">
-        <div className="mx-auto max-w-3xl px-4 sm:px-6">
-          <CTABlock
-            title={(ctaCardContent.title as string) ?? undefined}
-            description={(ctaCardContent.description as string) ?? undefined}
-            phone={phone}
-          />
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <div className="flex flex-col items-center gap-10 lg:flex-row">
+            {((miniBioContent.image_url as string) || settings?.aboutImageUrl) ? (
+              <div className="h-48 w-48 shrink-0 overflow-hidden rounded-full shadow-lg">
+                <Image
+                  src={(miniBioContent.image_url as string) || settings?.aboutImageUrl || ""}
+                  alt={(miniBioContent.image_alt as string) || (settings?.aboutImageAlt ?? "Arnaud Canadas, physiothérapeute vestibulaire spécialisé à Morges")}
+                  width={384}
+                  height={384}
+                  sizes="192px"
+                  className="h-full w-full object-cover object-[center_20%]"
+                />
+              </div>
+            ) : (
+              <div className="h-48 w-48 shrink-0 rounded-full bg-teal-100" />
+            )}
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-wider text-primary">
+                {(miniBioContent.eyebrow as string) ?? "Votre thérapeute"}
+              </p>
+              <h2 className="mt-2 font-heading text-3xl font-bold">
+                {(miniBioContent.h2 as string) ?? "Arnaud Canadas"}
+              </h2>
+              <p className="mt-4 max-w-xl leading-relaxed text-muted-foreground">
+                {(miniBioContent.body as string) ?? "Physiothérapeute spécialisé en rééducation vestibulaire, Arnaud Canadas accompagne depuis plus de 10 ans les patients souffrant de vertiges et troubles de l'équilibre. Formé aux dernières techniques de diagnostic et de traitement, il offre une prise en charge complète et personnalisée."}
+              </p>
+              {((miniBioContent.qualifications as string[]) ?? []).length > 0 && (
+                <>
+                  <h3 className="mt-6 font-heading text-lg font-semibold">Qualifications</h3>
+                  <ul className="mt-2 space-y-1.5 text-sm text-muted-foreground">
+                    {(miniBioContent.qualifications as string[]).map((q, i) => (
+                      <li key={i} className="flex items-start gap-2">
+                        <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+                        {q}
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
+              <Link
+                href="/le-physiotherapeute"
+                className={cn(
+                  buttonVariants({ variant: "outline", size: "sm" }),
+                  "mt-6"
+                )}
+              >
+                Lire ma bio complète
+                <ArrowRight className="ml-2 h-3.5 w-3.5" />
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -329,49 +370,6 @@ export default async function HomePage() {
           </div>
         </section>
       )}
-
-      {/* About mini-block */}
-      <section className="py-20 md:py-32">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <div className="flex flex-col items-center gap-10 lg:flex-row">
-            {settings?.aboutImageUrl ? (
-              <div className="h-48 w-48 shrink-0 overflow-hidden rounded-full shadow-lg">
-                <Image
-                  src={settings.aboutImageUrl}
-                  alt={settings.aboutImageAlt ?? "Arnaud Canadas, physiothérapeute vestibulaire spécialisé à Morges"}
-                  width={384}
-                  height={384}
-                  sizes="192px"
-                  className="h-full w-full object-cover object-[center_20%]"
-                />
-              </div>
-            ) : (
-              <div className="h-48 w-48 shrink-0 rounded-full bg-teal-100" />
-            )}
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-wider text-primary">
-                {(miniBioContent.eyebrow as string) ?? "Votre thérapeute"}
-              </p>
-              <h2 className="mt-2 font-heading text-3xl font-bold">
-                {(miniBioContent.h2 as string) ?? "Arnaud Canadas"}
-              </h2>
-              <p className="mt-4 max-w-xl leading-relaxed text-muted-foreground">
-                {(miniBioContent.body as string) ?? "Physiothérapeute spécialisé en rééducation vestibulaire, Arnaud Canadas accompagne depuis plus de 10 ans les patients souffrant de vertiges et troubles de l'équilibre. Formé aux dernières techniques de diagnostic et de traitement, il offre une prise en charge complète et personnalisée."}
-              </p>
-              <Link
-                href="/le-physiotherapeute"
-                className={cn(
-                  buttonVariants({ variant: "outline", size: "sm" }),
-                  "mt-6"
-                )}
-              >
-                Lire ma bio complète
-                <ArrowRight className="ml-2 h-3.5 w-3.5" />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Blog teaser */}
       {latestPosts.length > 0 && (
@@ -450,13 +448,22 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* Final CTA */}
-      <CTABlock
-        variant="fullwidth"
-        title={(finalCtaContent.title as string) ?? "Prendre rendez-vous"}
-        description={(finalCtaContent.description as string) ?? "N'hésitez pas à me contacter pour toute question ou pour fixer un rendez-vous."}
-        phone={phone}
-      />
+      {/* Final CTA with embedded contact form */}
+      <section className="bg-primary py-16 text-primary-foreground md:py-20">
+        <div className="mx-auto max-w-xl px-4 sm:px-6">
+          <div className="text-center">
+            <h2 className="font-heading text-2xl font-bold sm:text-3xl">
+              {(finalCtaContent.title as string) ?? "Prendre rendez-vous"}
+            </h2>
+            <p className="mx-auto mt-3 max-w-xl text-primary-foreground/80">
+              {(finalCtaContent.description as string) ?? "N'hésitez pas à me contacter pour toute question ou pour fixer un rendez-vous."}
+            </p>
+          </div>
+          <div className="mt-8 [&_label]:text-primary-foreground [&_input]:border-primary-foreground/30 [&_input]:bg-primary-foreground/10 [&_input]:text-primary-foreground [&_input]:placeholder-primary-foreground/50 [&_textarea]:border-primary-foreground/30 [&_textarea]:bg-primary-foreground/10 [&_textarea]:text-primary-foreground [&_textarea]:placeholder-primary-foreground/50 [&_a]:text-primary-foreground/80 [&_a:hover]:text-primary-foreground [&_.text-muted-foreground]:text-primary-foreground/70 [&_.text-destructive]:text-red-300">
+            <ContactForm />
+          </div>
+        </div>
+      </section>
     </>
   );
 }

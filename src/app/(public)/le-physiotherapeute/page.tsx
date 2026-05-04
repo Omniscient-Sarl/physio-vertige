@@ -48,21 +48,23 @@ export default async function PhysiotherapeutePage() {
     getPageContent("/le-physiotherapeute"),
   ]);
   const phone = settings?.phone ?? "+41 77 274 71 44";
-  const aboutImageUrl = settings?.aboutImageUrl;
-  const aboutImageAlt =
-    settings?.aboutImageAlt ??
-    "Arnaud Canadas, physiothérapeute vestibulaire spécialisé à Morges";
 
   const bio = content?.get("bio") ?? {};
+  const aboutImageUrl = (bio.image_url as string) || settings?.aboutImageUrl;
+  const aboutImageAlt =
+    (bio.image_alt as string) || (settings?.aboutImageAlt ??
+    "Arnaud Canadas, physiothérapeute vestibulaire spécialisé à Morges");
   const eyebrow = (bio.eyebrow as string) ?? "Le physiothérapeute";
   const h1 = (bio.h1 as string) ?? "Arnaud Canadas";
   const subtitle = (bio.subtitle as string) ?? "Physiothérapeute vestibulaire spécialisé";
   const body = (bio.body as string) ?? "Passionné par la physiothérapie vestibulaire, je me suis spécialisé dans le traitement des vertiges et des troubles de l'équilibre. Mon objectif est d'offrir à chaque patient une prise en charge claire, rassurante et efficace.\n\nAprès ma formation en physiothérapie, j'ai approfondi mes connaissances dans le domaine vestibulaire à travers des formations continues spécialisées, me permettant de maîtriser les techniques les plus récentes de diagnostic et de traitement des pathologies vestibulaires.\n\nJe reçois mes patients au sein du cabinet partagé situé au centre de Morges, dans un environnement calme et adapté à la rééducation vestibulaire.";
   const qualifications = (bio.qualifications as string[]) ?? [
-    "Diplôme en physiothérapie",
-    "Formation spécialisée en rééducation vestibulaire",
+    "Diplôme en physiothérapie (2020)",
+    "Formation spécialisée en dry needling (2020)",
+    "Master en douleur chronique (2021)",
+    "Formation VIRE vertiges (2021)",
     "Formation continue en troubles de l'équilibre et vertiges",
-    "Membre de Physioswiss",
+    "Diplôme universitaire de prise en charge clinique, paraclinique et thérapeutique des vertiges – Université de Reims (2025)",
   ];
 
   const bodyParagraphs = body.split("\n\n").filter(Boolean);
