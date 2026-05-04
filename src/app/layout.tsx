@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Fraunces } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { getSiteSettings } from "@/db/queries";
+import { SITE_URL } from "@/lib/utils";
 import "./globals.css";
 
 const inter = Inter({
@@ -22,7 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const ogImageAlt = settings?.defaultOgImageAlt ?? "Physio-Vertige";
 
   return {
-    metadataBase: new URL("https://physio-vertige.ch"),
+    metadataBase: new URL(SITE_URL),
     title: {
       default:
         "Physio-Vertige — Arnaud Canadas, Physiothérapeute vestibulaire à Morges",
@@ -33,7 +34,7 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       type: "website",
       locale: "fr_CH",
-      url: "https://physio-vertige.ch",
+      url: SITE_URL,
       siteName: "Physio-Vertige",
       title: "Physio-Vertige — Physiothérapie vestibulaire à Morges",
       description:
@@ -62,9 +63,9 @@ export async function generateMetadata(): Promise<Metadata> {
       google: "google14c1f8e9a76f78b5",
     },
     alternates: {
-      canonical: "https://physio-vertige.ch",
+      canonical: SITE_URL,
       languages: {
-        "fr-CH": "https://physio-vertige.ch",
+        "fr-CH": SITE_URL,
       },
     },
     robots: {

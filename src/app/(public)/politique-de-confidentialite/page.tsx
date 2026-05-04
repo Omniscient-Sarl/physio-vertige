@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getPageContent } from "@/db/queries";
+import { SITE_URL } from "@/lib/utils";
 import { MarkdownRenderer } from "@/components/public/markdown-renderer";
 
 export const revalidate = 60;
@@ -7,7 +8,7 @@ export const revalidate = 60;
 export const metadata: Metadata = {
   title: "Politique de confidentialité",
   description: "Politique de confidentialité du site Physio-Vertige.",
-  alternates: { canonical: "https://physio-vertige.ch/politique-de-confidentialite" },
+  alternates: { canonical: `${SITE_URL}/politique-de-confidentialite` },
   robots: { index: false },
 };
 

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { Phone } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn, SITE_URL } from "@/lib/utils";
 import { getSiteSettings, getPageContent } from "@/db/queries";
 
 export const revalidate = 60;
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   title: "Le Physiothérapeute — Arnaud Canadas",
   description:
     "Découvrez le parcours et les qualifications d'Arnaud Canadas, physiothérapeute vestibulaire spécialisé à Morges, Canton de Vaud.",
-  alternates: { canonical: "https://physio-vertige.ch/le-physiotherapeute" },
+  alternates: { canonical: `${SITE_URL}/le-physiotherapeute` },
 };
 
 function PersonJsonLd() {
@@ -20,11 +20,11 @@ function PersonJsonLd() {
     "@type": "Person",
     name: "Arnaud Canadas",
     jobTitle: "Physiothérapeute vestibulaire",
-    url: "https://physio-vertige.ch/le-physiotherapeute",
+    url: `${SITE_URL}/le-physiotherapeute`,
     worksFor: {
       "@type": "Physiotherapy",
       name: "Physio-Vertige",
-      url: "https://physio-vertige.ch",
+      url: `${SITE_URL}`,
     },
     address: {
       "@type": "PostalAddress",

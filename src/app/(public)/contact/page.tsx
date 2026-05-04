@@ -2,12 +2,13 @@ import type { Metadata } from "next";
 import { MapPin, Mail, Phone, Clock } from "lucide-react";
 import { ContactForm } from "@/components/public/contact-form";
 import { getSiteSettings, getPageContent } from "@/db/queries";
+import { SITE_URL } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Contact — Prendre rendez-vous",
   description:
     "Contactez Arnaud Canadas, physiothérapeute vestibulaire à Morges. Prenez rendez-vous par téléphone ou via le formulaire de contact.",
-  alternates: { canonical: "https://physio-vertige.ch/contact" },
+  alternates: { canonical: `${SITE_URL}/contact` },
 };
 
 export const revalidate = 60;

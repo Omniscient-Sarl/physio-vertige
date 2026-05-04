@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn, SITE_URL } from "@/lib/utils";
 import Image from "next/image";
 import {
   getPublishedBlogPosts,
@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: post.metaTitle ?? post.title,
     description: post.metaDescription ?? post.excerpt ?? "",
-    alternates: { canonical: `https://physio-vertige.ch/blog/${slug}` },
+    alternates: { canonical: `${SITE_URL}/blog/${slug}` },
     openGraph: {
       type: "article",
       publishedTime: post.publishedAt?.toISOString(),
@@ -76,13 +76,13 @@ export default async function BlogPostPage({ params }: Props) {
     author: {
       "@type": "Person",
       name: post.author,
-      url: "https://physio-vertige.ch/le-physiotherapeute",
+      url: `${SITE_URL}/le-physiotherapeute`,
     },
     datePublished: post.publishedAt?.toISOString(),
     publisher: {
       "@type": "Organization",
       name: "Physio-Vertige",
-      url: "https://physio-vertige.ch",
+      url: SITE_URL,
     },
   };
 
@@ -110,19 +110,19 @@ export default async function BlogPostPage({ params }: Props) {
         "@type": "ListItem",
         position: 1,
         name: "Accueil",
-        item: "https://physio-vertige.ch",
+        item: SITE_URL,
       },
       {
         "@type": "ListItem",
         position: 2,
         name: "Blog",
-        item: "https://physio-vertige.ch/blog",
+        item: `${SITE_URL}/blog`,
       },
       {
         "@type": "ListItem",
         position: 3,
         name: post.title,
-        item: `https://physio-vertige.ch/blog/${slug}`,
+        item: `${SITE_URL}/blog/${slug}`,
       },
     ],
   };

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getPageContent } from "@/db/queries";
+import { SITE_URL } from "@/lib/utils";
 import { MarkdownRenderer } from "@/components/public/markdown-renderer";
 
 export const revalidate = 60;
@@ -7,7 +8,7 @@ export const revalidate = 60;
 export const metadata: Metadata = {
   title: "Mentions légales",
   description: "Mentions légales du site Physio-Vertige.",
-  alternates: { canonical: "https://physio-vertige.ch/mentions-legales" },
+  alternates: { canonical: `${SITE_URL}/mentions-legales` },
   robots: { index: false },
 };
 

@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
 import { getPublishedServices, getPublishedBlogPosts } from "@/db/queries";
+import { SITE_URL } from "@/lib/utils";
 
-const BASE_URL = "https://physio-vertige.ch";
+const BASE_URL = SITE_URL;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [services, posts] = await Promise.all([

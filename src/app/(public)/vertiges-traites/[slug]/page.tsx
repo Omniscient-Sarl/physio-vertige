@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import { notFound } from "next/navigation";
 import { Phone, ArrowRight } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn, SITE_URL } from "@/lib/utils";
 import {
   getPublishedServices,
   getServiceBySlug,
@@ -42,7 +42,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       service.shortDescription ??
       "",
     alternates: {
-      canonical: `https://physio-vertige.ch/vertiges-traites/${slug}`,
+      canonical: `${SITE_URL}/vertiges-traites/${slug}`,
     },
   };
 }
@@ -83,7 +83,7 @@ export default async function ConditionPage({ params }: Props) {
       performer: {
         "@type": "Physician",
         name: "Arnaud Canadas",
-        url: "https://physio-vertige.ch/le-physiotherapeute",
+        url: `${SITE_URL}/le-physiotherapeute`,
       },
     },
   };
@@ -96,19 +96,19 @@ export default async function ConditionPage({ params }: Props) {
         "@type": "ListItem",
         position: 1,
         name: "Accueil",
-        item: "https://physio-vertige.ch",
+        item: SITE_URL,
       },
       {
         "@type": "ListItem",
         position: 2,
         name: "Vertiges traités",
-        item: "https://physio-vertige.ch/vertiges-traites",
+        item: `${SITE_URL}/vertiges-traites`,
       },
       {
         "@type": "ListItem",
         position: 3,
         name: service.title,
-        item: `https://physio-vertige.ch/vertiges-traites/${slug}`,
+        item: `${SITE_URL}/vertiges-traites/${slug}`,
       },
     ],
   };

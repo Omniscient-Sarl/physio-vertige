@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getPublishedServices, getSiteSettings, getPageContent } from "@/db/queries";
+import { SITE_URL } from "@/lib/utils";
 import { ConditionCard } from "@/components/public/condition-card";
 import { CTABlock } from "@/components/public/cta-block";
 
@@ -10,7 +11,7 @@ export const metadata: Metadata = {
   title: "Vertiges traités — Conditions vestibulaires prises en charge",
   description:
     "Découvrez les pathologies vestibulaires traitées par Arnaud Canadas à Morges : VPPB, névrite vestibulaire, maladie de Ménière, migraine vestibulaire, et plus.",
-  alternates: { canonical: "https://physio-vertige.ch/vertiges-traites" },
+  alternates: { canonical: `${SITE_URL}/vertiges-traites` },
 };
 
 export default async function VertigesTraitesPage() {

@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import { MapPin, Phone } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn, SITE_URL } from "@/lib/utils";
 import { getSiteSettings, getPageContent } from "@/db/queries";
 
 export const metadata: Metadata = {
   title: "Cabinet partagé — Morges",
   description:
     "Découvrez le cabinet de physiothérapie partagé situé au centre de Morges, Canton de Vaud.",
-  alternates: { canonical: "https://physio-vertige.ch/cabinet" },
+  alternates: { canonical: `${SITE_URL}/cabinet` },
 };
 
 export const revalidate = 60;

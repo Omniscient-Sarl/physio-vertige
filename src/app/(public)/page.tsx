@@ -3,7 +3,7 @@ import Image from "next/image";
 import dynamic from "next/dynamic";
 import { Phone, ArrowRight } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn, SITE_URL } from "@/lib/utils";
 import {
   getSiteSettings,
   getPublishedServices,
@@ -62,7 +62,7 @@ function LocalBusinessJsonLd(props: {
     name: "Physio-Vertige — Arnaud Canadas",
     description:
       "Physiothérapie vestibulaire spécialisée à Morges. Traitement des vertiges, troubles de l'équilibre, VPPB, maladie de Ménière.",
-    url: "https://physio-vertige.ch",
+    url: SITE_URL,
     telephone: props.phone.replace(/\s/g, ""),
     email: props.email,
     address: {

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { getPublishedBlogPosts, getPageContent } from "@/db/queries";
+import { SITE_URL } from "@/lib/utils";
 
 export const revalidate = 60;
 
@@ -9,7 +10,7 @@ export const metadata: Metadata = {
   title: "Blog — Articles sur les vertiges et l'équilibre",
   description:
     "Articles et conseils sur les vertiges, troubles de l'équilibre et la rééducation vestibulaire par Arnaud Canadas.",
-  alternates: { canonical: "https://physio-vertige.ch/blog" },
+  alternates: { canonical: `${SITE_URL}/blog` },
 };
 
 function readingTime(content: string | null): string {
