@@ -320,9 +320,11 @@ export default async function HomePage() {
               <h2 className="mt-2 font-heading text-3xl font-bold">
                 {(miniBioContent.h2 as string) ?? "Arnaud Canadas"}
               </h2>
-              <p className="mt-4 max-w-xl leading-relaxed text-muted-foreground">
-                {(miniBioContent.body as string) ?? "Physiothérapeute spécialisé en rééducation vestibulaire, Arnaud Canadas accompagne depuis plus de 10 ans les patients souffrant de vertiges et troubles de l'équilibre. Formé aux dernières techniques de diagnostic et de traitement, il offre une prise en charge complète et personnalisée."}
-              </p>
+              {(miniBioContent.body as string) && (
+                <p className="mt-4 max-w-xl leading-relaxed text-muted-foreground">
+                  {miniBioContent.body as string}
+                </p>
+              )}
               {((miniBioContent.qualifications as string[]) ?? []).length > 0 && (
                 <>
                   <h3 className="mt-6 font-heading text-lg font-semibold">Qualifications</h3>

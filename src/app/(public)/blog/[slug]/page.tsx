@@ -62,7 +62,7 @@ export default async function BlogPostPage({ params }: Props) {
   const authorBio = blogContent?.get("author_bio") ?? {};
   const authorByline = (authorBio.byline as string) ?? "Physiothérapeute vestibulaire";
   const authorSubtitle = (authorBio.subtitle as string) ?? "Physiothérapeute spécialisé en rééducation vestibulaire";
-  const authorBioBody = (authorBio.body as string) ?? "Arnaud Canadas accompagne depuis plus de 10 ans les patients souffrant de vertiges et troubles de l'équilibre. Formé aux dernières techniques de diagnostic vestibulaire, il exerce à Morges, Canton de Vaud.";
+  const authorBioBody = (authorBio.body as string) ?? "";
   const content = post.content ?? "";
   const headings = extractHeadings(content);
 
@@ -233,9 +233,11 @@ export default async function BlogPostPage({ params }: Props) {
                     </p>
                   </div>
                 </div>
-                <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-                  {authorBioBody}
-                </p>
+                {authorBioBody && (
+                  <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+                    {authorBioBody}
+                  </p>
+                )}
                 <Link
                   href="/le-physiotherapeute"
                   className={cn(
