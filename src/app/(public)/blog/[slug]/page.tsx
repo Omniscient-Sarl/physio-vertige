@@ -38,7 +38,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       type: "article",
       publishedTime: post.publishedAt?.toISOString(),
       authors: post.author ? [post.author] : undefined,
-      images: post.coverImageUrl ? [post.coverImageUrl] : undefined,
     },
   };
 }
