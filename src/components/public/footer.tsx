@@ -130,6 +130,17 @@ export function Footer({
 
         <div className="mt-12 border-t border-teal-800 pt-6 text-center text-xs text-teal-100/60">
           &copy; {new Date().getFullYear()} Physio-Vertige — Arnaud Canadas. Tous droits reserves.
+          <p className="mt-2 text-teal-100/40">
+            Développé par{" "}
+            <a
+              href="https://omniscient.swiss"
+              target="_blank"
+              rel="external noopener"
+              className="underline transition-colors hover:text-white"
+            >
+              Omniscient Sàrl
+            </a>
+          </p>
         </div>
       </div>
     </footer>
