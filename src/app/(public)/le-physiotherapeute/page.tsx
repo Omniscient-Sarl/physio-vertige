@@ -125,6 +125,19 @@ export default async function PhysiotherapeutePage() {
                 ))}
               </ul>
 
+              <p className="mt-6 text-sm text-muted-foreground">
+                Membre du{" "}
+                <a
+                  href="https://vertiges-equilibre.ch"
+                  target="_blank"
+                  rel="external noopener"
+                  className="text-primary underline underline-offset-2 hover:text-primary/80"
+                >
+                  Groupement Romand des Physiothérapeutes Vestibulaires (GRPV)
+                </a>
+                , un réseau professionnel de spécialistes en rééducation vestibulaire en Suisse romande.
+              </p>
+
               <a href={`tel:${phone.replace(/\s/g, "")}`} className={cn(buttonVariants({ size: "lg" }), "mt-8")}>
                 <Phone className="mr-2 h-5 w-5" />
                 Prendre rendez-vous

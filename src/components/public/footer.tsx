@@ -85,6 +85,14 @@ export function Footer({
                   {link.label}
                 </Link>
               ))}
+              <a
+                href="https://vertiges-equilibre.ch"
+                target="_blank"
+                rel="external noopener"
+                className="text-sm text-teal-100/70 transition-colors hover:text-white"
+              >
+                Membre du GRPV
+              </a>
             </nav>
           </div>
 
